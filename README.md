@@ -7,4 +7,5 @@ Za projektno nalogo pri predmetu osnove podatkovnih baz bova izdelala stran za o
 Člana: Martin Molan, Nejc Černe
 
 ## Plan dela:
+* Načrt podatkovne baze (ER diagram)
 * Vzpostavitev podatkovne baze
