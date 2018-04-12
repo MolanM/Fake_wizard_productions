@@ -1,0 +1,76 @@
+CREATE TABLE clan (
+	id INTEGER PRIMARY KEY,
+	ime TEXT NOT NULL,
+	priimek TEXT NOT NULL,
+	rojstvo DATE NOT NULL,
+	naslov TEXT,
+	bio TEXT
+);
+
+CREATE TABLE uporabnik (
+	id SERIAL PRIMARY KEY,
+	ime TEXT NOT NULL,
+	priimek TEXT NOT NULL,
+	rojstvo DATE NOT NULL,
+	spol TEXT NOT NULL,
+	gru BOOLEAN DEFAULT false
+);
+
+
+
+CREATE TABLE zanr(
+	id SERIAL PRIMARY KEY,
+	naslov TEXT NOT NULL,
+);
+
+CREATE TABLE album(
+	id SERIAL PRIMARY KEY,
+	naslov TEXT NOT NULL,
+	st_pesmi INTEGER NOT NULL,
+	izdan DATE NOT NULL,
+	opis TEXT,
+	cena INTEGER 
+);
+
+
+CREATE TABLE pesem (
+	id SERIAL PRIMARY KEY,
+	naslov TEXT NOT NULL,
+	dolzina INTEGER NOT NULL,
+	izdan DATE NOT NULL,
+	avtor_pesmi INTEGER NOT NULL REFERENCES clan(id),
+	avtor_besedila INTEGER NOT NULL REFERENCES clan(id),
+	zanr INTEGER NOT NULL REFERENCES zanr(id),
+	album INTEGER NOT NULL REFERENCES album(id),
+	cena INTEGER	
+);
+
+
+CREATE TABLE lit_delo (
+	id SERIAL PRIMARY KEY,
+	naslov TEXT NOT NULL,
+	izdan DATE NOT NULL,
+	zaloznik TEXT,
+	avtor INTEGER NOT NULL REFERENCES clan(id),
+	tip TEXT NOT NULL
+);
+
+
+CREATE TABLE avdio_video (
+	id SERIAL PRIMARY KEY,
+	naslov TEXT NOT NULL,
+	izdan DATE NOT NULL,
+	avtor INTEGER NOT NULL REFERENCES clan(id),
+	tip TEXT NOT NULL
+);
+
+CREATE TABLE dogodek (
+	id SERIAL PRIMARY KEY,
+	naslov TEXT NOT NULL,
+	datum DATE NOT NULL,
+	avtor INTEGER REFERENCES clan(id),
+	tip TEXT NOT NULL
+	izvedene_pesmi INTEGER REFERENCES pesem(id),
+	izvedena_lit_dela INTEGER REFERENCES lit_delo(id),
+	izvedena_av_dela INTEGER REFERENCES avdio_video(id),
+);	
