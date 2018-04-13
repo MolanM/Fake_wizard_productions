@@ -1,3 +1,6 @@
+-- drop table IF EXISTS clan CASCADE; ?
+-- ON DELETE? ON UPDATE?
+
 CREATE TABLE clan (
 	id INTEGER PRIMARY KEY,
 	ime TEXT NOT NULL,
@@ -7,8 +10,12 @@ CREATE TABLE clan (
 	bio TEXT
 );
 
+
 CREATE TABLE uporabnik (
 	id SERIAL PRIMARY KEY,
+	uporabnisko_ime TEXT NOT NULL UNIQUE,
+	geslo TEXT NOT NULL,
+	stanje INTEGER DEFAULT 0,
 	ime TEXT NOT NULL,
 	priimek TEXT NOT NULL,
 	rojstvo DATE NOT NULL,
@@ -17,16 +24,15 @@ CREATE TABLE uporabnik (
 );
 
 
-
 CREATE TABLE zanr(
 	id SERIAL PRIMARY KEY,
-	naslov TEXT NOT NULL,
+	naslov TEXT NOT NULL
 );
+
 
 CREATE TABLE album(
 	id SERIAL PRIMARY KEY,
 	naslov TEXT NOT NULL,
-	st_pesmi INTEGER NOT NULL,
 	izdan DATE NOT NULL,
 	opis TEXT,
 	cena INTEGER 
@@ -38,11 +44,27 @@ CREATE TABLE pesem (
 	naslov TEXT NOT NULL,
 	dolzina INTEGER NOT NULL,
 	izdan DATE NOT NULL,
-	avtor_pesmi INTEGER NOT NULL REFERENCES clan(id),
-	avtor_besedila INTEGER NOT NULL REFERENCES clan(id),
 	zanr INTEGER NOT NULL REFERENCES zanr(id),
-	album INTEGER NOT NULL REFERENCES album(id),
 	cena INTEGER	
+);
+
+CREATE TABLE avtor_pesmi (
+    pesemID SERIAL NOT NULL REFERENCES pesem(id),
+    clanID SERIAL NOT NULL REFERENCES clan(id),
+    CONSTRAINT PK_avtor_pesem PRIMARY KEY (pesemID, clanID)
+);
+
+CREATE TABLE avtor_besedila_pesmi (
+    pesemID SERIAL NOT NULL REFERENCES pesem(id),
+    clanID SERIAL NOT NULL REFERENCES clan(id),
+    CONSTRAINT PK_avtor_besedila_pesmi PRIMARY KEY (pesemID, clanID)
+);
+
+
+CREATE TABLE albumpesem (
+    pesemID SERIAL NOT NULL REFERENCES pesem(id),
+    albumID SERIAL NOT NULL REFERENCES album(id),
+    CONSTRAINT PK_albumpesmem PRIMARY KEY (pesemID, albumID)
 );
 
 
@@ -51,26 +73,49 @@ CREATE TABLE lit_delo (
 	naslov TEXT NOT NULL,
 	izdan DATE NOT NULL,
 	zaloznik TEXT,
-	avtor INTEGER NOT NULL REFERENCES clan(id),
 	tip TEXT NOT NULL
 );
 
+CREATE TABLE avtor_lit_dela (
+    litdeloID SERIAL NOT NULL REFERENCES lit_delo(id),
+    clanID SERIAL NOT NULL REFERENCES clan(id),
+    CONSTRAINT PK_avtor_lit_dela PRIMARY KEY (litdeloID, clanID)
+);
 
 CREATE TABLE avdio_video (
 	id SERIAL PRIMARY KEY,
 	naslov TEXT NOT NULL,
 	izdan DATE NOT NULL,
-	avtor INTEGER NOT NULL REFERENCES clan(id),
 	tip TEXT NOT NULL
+);
+
+CREATE TABLE avtor_av_dela (
+    avdeloID SERIAL NOT NULL REFERENCES avdio_video(id),
+    clanID SERIAL NOT NULL REFERENCES clan(id),
+    CONSTRAINT PK_avtor_av_dela PRIMARY KEY (avdeloID, clanID)
 );
 
 CREATE TABLE dogodek (
 	id SERIAL PRIMARY KEY,
 	naslov TEXT NOT NULL,
 	datum DATE NOT NULL,
-	avtor INTEGER REFERENCES clan(id),
 	tip TEXT NOT NULL
-	izvedene_pesmi INTEGER REFERENCES pesem(id),
-	izvedena_lit_dela INTEGER REFERENCES lit_delo(id),
-	izvedena_av_dela INTEGER REFERENCES avdio_video(id),
 );	
+
+CREATE TABLE izvedene_pesmi (
+    dogodekID SERIAL NOT NULL REFERENCES dogodek(id),
+    pesemID SERIAL NOT NULL REFERENCES pesem(id),
+    CONSTRAINT PK_izvedene_pesmi PRIMARY KEY (dogodekID, pesemID)
+);
+
+CREATE TABLE izvedena_lit_dela (
+    dogodekID SERIAL NOT NULL REFERENCES dogodek(id),
+    litdeloID SERIAL NOT NULL REFERENCES lit_delo(id),
+    CONSTRAINT PK_izvedena_lit_dela PRIMARY KEY (dogodekID, litdeloID)
+);
+
+CREATE TABLE izvedena_av_dela (
+    dogodekID SERIAL NOT NULL REFERENCES dogodek(id),
+    avdeloID SERIAL NOT NULL REFERENCES avdio_video(id),
+    CONSTRAINT PK_izvedena_av_dela PRIMARY KEY (dogodekID, avdeloID)
+);
