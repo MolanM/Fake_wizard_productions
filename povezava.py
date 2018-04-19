@@ -1,6 +1,6 @@
 # uvozimo ustrezne podatke za povezavo
 import auth
-auth.db = "sem2018_martinm" % auth.user
+auth.db = "sem2018_martinm"
 
 # uvozimo psycopg2
 import psycopg2, psycopg2.extensions, psycopg2.extras
@@ -116,6 +116,10 @@ CREATE TABLE izvedene_pesmi (
     pesemID SERIAL NOT NULL REFERENCES pesem(id),
     CONSTRAINT PK_izvedene_pesmi PRIMARY KEY (dogodekID, pesemID)
 );
+GRANT ALL ON ALL TABLES IN SCHEMA public TO nejcc;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO martinm;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO nejcc;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO martinm;
     """)
     conn.commit()
 
@@ -161,6 +165,8 @@ def pravice():
         GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO martinm;
         GRANT ALL ON ALL TABLES IN SCHEMA public TO nejcc;
         GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO nejcc;
+        GRANT CONNECT ON DATABASE sem2018_martinm TO nejcc;
+        GRANT ALL ON SCHEMA public TO nejcc;
         GRANT SELECT, UPDATE, INSERT ON ALL TABLES IN SCHEMA public TO javnost;
         GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO javnost;
     """)
