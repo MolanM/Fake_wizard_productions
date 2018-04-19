@@ -1,6 +1,6 @@
 # uvozimo ustrezne podatke za povezavo
 import auth
-auth.db = "sem2018_%s" % auth.user
+auth.db = "sem2018_martinm" % auth.user
 
 # uvozimo psycopg2
 import psycopg2, psycopg2.extensions, psycopg2.extras
@@ -155,6 +155,16 @@ def uvozi_podatke():
             """)
     conn.commit()
 
+def pravice():
+    cur.execute("""
+        GRANT ALL ON ALL TABLES IN SCHEMA public TO martinm;
+        GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO martinm;
+        GRANT ALL ON ALL TABLES IN SCHEMA public TO nejcc;
+        GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO nejcc;
+        GRANT SELECT, UPDATE, INSERT ON ALL TABLES IN SCHEMA public TO javnost;
+        GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO javnost;
+    """)
+    conn.commit()
 
 
     
