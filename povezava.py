@@ -1,7 +1,16 @@
--- drop table IF EXISTS clan CASCADE; ?
--- ON DELETE? ON UPDATE?
+# uvozimo ustrezne podatke za povezavo
+import auth
+auth.db = "sem2018_%s" % auth.user
 
-CREATE TABLE clan (
+# uvozimo psycopg2
+import psycopg2, psycopg2.extensions, psycopg2.extras
+psycopg2.extensions.register_type(psycopg2.extensions.UNICODE) # se znebimo problemov s šumniki
+
+import csv
+
+def ustvari_tabelo():
+    cur.execute("""
+        CREATE TABLE clan (
 	id INTEGER PRIMARY KEY,
 	ime TEXT NOT NULL,
 	priimek TEXT NOT NULL,
@@ -35,7 +44,7 @@ CREATE TABLE album(
 	naslov TEXT NOT NULL,
 	izdan DATE NOT NULL,
 	opis TEXT,
-	cena INTEGER 
+	cena INTEGER
 );
 
 
@@ -45,7 +54,7 @@ CREATE TABLE pesem (
 	dolzina INTEGER NOT NULL,
 	izdan DATE NOT NULL,
 	zanr INTEGER NOT NULL REFERENCES zanr(id),
-	cena INTEGER	
+	cena INTEGER
 );
 
 CREATE TABLE avtor_pesmi (
@@ -100,22 +109,52 @@ CREATE TABLE dogodek (
 	naslov TEXT NOT NULL,
 	datum DATE NOT NULL,
 	tip TEXT NOT NULL
-);	
+);
 
 CREATE TABLE izvedene_pesmi (
     dogodekID SERIAL NOT NULL REFERENCES dogodek(id),
     pesemID SERIAL NOT NULL REFERENCES pesem(id),
     CONSTRAINT PK_izvedene_pesmi PRIMARY KEY (dogodekID, pesemID)
 );
+    """)
+    conn.commit()
 
-CREATE TABLE izvedena_lit_dela (
-    dogodekID SERIAL NOT NULL REFERENCES dogodek(id),
-    litdeloID SERIAL NOT NULL REFERENCES lit_delo(id),
-    CONSTRAINT PK_izvedena_lit_dela PRIMARY KEY (dogodekID, litdeloID)
-);
+def pobrisi_tabelo():
+    cur.execute("""
+        DROP TABLE IF EXISTS clan CASCADE;
+        DROP TABLE IF EXISTS uporabnik CASCADE;
+        DROP TABLE IF EXISTS avdio_video CASCADE;
+        DROP TABLE IF EXISTS pesem CASCADE;
+        DROP TABLE IF EXISTS album CASCADE;
+        DROP TABLE IF EXISTS lit_delo CASCADE;
+        DROP TABLE IF EXISTS dogodek CASCADE;
+        DROP TABLE IF EXISTS zanr CASCADE;
+        DROP TABLE IF EXISTS albumpesem CASCADE;
+        DROP TABLE IF EXISTS avtor_av_dela CASCADE;
+        DROP TABLE IF EXISTS avtor_besedila_pesmi CASCADE;
+        DROP TABLE IF EXISTS avtor_lit_dela CASCADE;
+        DROP TABLE IF EXISTS avtor_pesmi CASCADE;
+        DROP TABLE IF EXISTS izvedene_pesmi CASCADE;
+    """)
+    conn.commit()
+#verjetno ne bova uporabljala
+def uvozi_podatke():
+    with open("obcine.csv") as f:
+        rd = csv.reader(f)
+        next(rd) # izpusti naslovno vrstico
+        for r in rd:
+            r = [None if x in ('', '-') else x for x in r]
+            cur.execute("""
+                INSERT INTO obcina
+                (ime, povrsina, prebivalstvo, gostota, naselja,
+                 ustanovitev, pokrajina, stat_regija, odcepitev)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+            """, r)
+            rid, = cur.fetchone()
+            print("Uvožena občina %s z ID-jem %d" % (r[0], rid))
+    conn.commit()
 
-CREATE TABLE izvedena_av_dela (
-    dogodekID SERIAL NOT NULL REFERENCES dogodek(id),
-    avdeloID SERIAL NOT NULL REFERENCES avdio_video(id),
-    CONSTRAINT PK_izvedena_av_dela PRIMARY KEY (dogodekID, avdeloID)
-);
+
+conn = psycopg2.connect(database=auth.db, host=auth.host, user=auth.user, password=auth.password)
+cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
