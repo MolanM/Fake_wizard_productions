@@ -138,22 +138,42 @@ def pobrisi_tabelo():
     """)
     conn.commit()
 #verjetno ne bova uporabljala
+
 def uvozi_podatke():
-    with open("obcine.csv") as f:
-        rd = csv.reader(f)
-        next(rd) # izpusti naslovno vrstico
-        for r in rd:
-            r = [None if x in ('', '-') else x for x in r]
-            cur.execute("""
-                INSERT INTO obcina
-                (ime, povrsina, prebivalstvo, gostota, naselja,
-                 ustanovitev, pokrajina, stat_regija, odcepitev)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                RETURNING id
-            """, r)
-            rid, = cur.fetchone()
-            print("Uvožena občina %s z ID-jem %d" % (r[0], rid))
+    cur.execute("""
+                INSERT INTO clan(id, ime, priimek, rojstvo, naslov, bio) VALUES (42, 'Marko', 'Miocic', to_date('23-04-1996', 'dd-mm-yyyy'), 'Domzale', 'Hodil na gimnazijo Bežigrad.');
+                INSERT INTO clan(id, ime, priimek, rojstvo, naslov, bio) VALUES (69, 'Martin', 'Molan', to_date('15-05-1996', 'dd-mm-yyyy'), 'Grosuplje', 'Hodil na gimnazijo Bežigrad.');
+                INSERT INTO clan(id, ime, priimek, rojstvo, naslov, bio) VALUES (0, 'Nejc', 'Černe', to_date('21-09-1996', 'dd-mm-yyyy'), 'Ljubljana', 'Hodil na gimnazijo Bežigrad.');
+
+                INSERT INTO zanr(naslov) VALUES ('indie');
+                INSERT INTO zanr(naslov) VALUES ('pop');
+                INSERT INTO zanr(naslov) VALUES ('punk');
+
+                INSERT INTO album(naslov, izdan, opis, cena) VALUES ('Kdo ponareja?', to_date('13-05-2018', 'dd-mm-yyyy'), 'Kolektiv je s tem albumom vstopil na sceno.', 0);
+
+                --INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Zivim kot ponarejevalc', 3, to_date('21-10-2017', 'dd-mm-yyyy'), 1, 0);
+            """)
     conn.commit()
+
+
+
+    
+ #def uvozi_podatke():
+ #   with open("obcine.csv") as f:
+ #       rd = csv.reader(f)
+ #       next(rd) # izpusti naslovno vrstico
+ #       for r in rd:
+ #           r = [None if x in ('', '-') else x for x in r]
+ #           cur.execute("""
+ #               INSERT INTO obcina
+ #               (ime, povrsina, prebivalstvo, gostota, naselja,
+ #                ustanovitev, pokrajina, stat_regija, odcepitev)
+ #               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+ #               RETURNING id
+ #           """, r)
+ #           rid, = cur.fetchone()
+ #           print("Uvožena občina %s z ID-jem %d" % (r[0], rid))
+ #   conn.commit()
 
 
 conn = psycopg2.connect(database=auth.db, host=auth.host, user=auth.user, password=auth.password)
