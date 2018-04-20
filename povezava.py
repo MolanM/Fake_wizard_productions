@@ -1,6 +1,6 @@
 # uvozimo ustrezne podatke za povezavo
 import auth
-auth.db = "sem2018_martinm"
+auth.db = "sem2018_nejcc"
 
 # uvozimo psycopg2
 import psycopg2, psycopg2.extensions, psycopg2.extras
@@ -19,6 +19,7 @@ def ustvari_tabelo():
 	bio TEXT
 );
 
+CREATE TYPE spol AS ENUM ('moški', 'ženska', 'drugo');
 
 CREATE TABLE uporabnik (
 	id SERIAL PRIMARY KEY,
@@ -28,8 +29,9 @@ CREATE TABLE uporabnik (
 	ime TEXT NOT NULL,
 	priimek TEXT NOT NULL,
 	rojstvo DATE NOT NULL,
-	spol TEXT NOT NULL,
-	gru BOOLEAN DEFAULT false
+	spol_uporabnika spol NOT NULL,
+	gru BOOLEAN DEFAULT false,
+	admin BOOLEAN DEFAULT false
 );
 
 
@@ -51,7 +53,7 @@ CREATE TABLE album(
 CREATE TABLE pesem (
 	id SERIAL PRIMARY KEY,
 	naslov TEXT NOT NULL,
-	dolzina INTEGER NOT NULL,
+	dolzina INTERVAL NOT NULL,
 	izdan DATE NOT NULL,
 	zanr INTEGER NOT NULL REFERENCES zanr(id),
 	cena INTEGER
@@ -70,7 +72,7 @@ CREATE TABLE avtor_besedila_pesmi (
 );
 
 
-CREATE TABLE albumpesem (
+CREATE TABLE album_pesem (
     pesemID SERIAL NOT NULL REFERENCES pesem(id),
     albumID SERIAL NOT NULL REFERENCES album(id),
     CONSTRAINT PK_albumpesmem PRIMARY KEY (pesemID, albumID)
@@ -116,6 +118,19 @@ CREATE TABLE izvedene_pesmi (
     pesemID SERIAL NOT NULL REFERENCES pesem(id),
     CONSTRAINT PK_izvedene_pesmi PRIMARY KEY (dogodekID, pesemID)
 );
+
+CREATE TABLE izvedena_av_dela (
+    dogodekID SERIAL NOT NULL REFERENCES dogodek(id),
+    avdeloID SERIAL NOT NULL REFERENCES avdio_video(id),
+    CONSTRAINT PK_izvedena_av_dela PRIMARY KEY (dogodekID, avdeloID)
+);
+
+CREATE TABLE izvedena_lit_dela (
+    dogodekID SERIAL NOT NULL REFERENCES dogodek(id),
+    litdeloID SERIAL NOT NULL REFERENCES lit_delo(id),
+    CONSTRAINT PK_izvedena_lit_dela PRIMARY KEY (dogodekID, litdeloID)
+);
+
 GRANT ALL ON ALL TABLES IN SCHEMA public TO nejcc;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO martinm;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO nejcc;
@@ -133,15 +148,17 @@ def pobrisi_tabelo():
         DROP TABLE IF EXISTS lit_delo CASCADE;
         DROP TABLE IF EXISTS dogodek CASCADE;
         DROP TABLE IF EXISTS zanr CASCADE;
-        DROP TABLE IF EXISTS albumpesem CASCADE;
+        DROP TABLE IF EXISTS album_pesem CASCADE;
         DROP TABLE IF EXISTS avtor_av_dela CASCADE;
         DROP TABLE IF EXISTS avtor_besedila_pesmi CASCADE;
         DROP TABLE IF EXISTS avtor_lit_dela CASCADE;
         DROP TABLE IF EXISTS avtor_pesmi CASCADE;
         DROP TABLE IF EXISTS izvedene_pesmi CASCADE;
+        DROP TABLE IF EXISTS izvedena_av_dela CASCADE;
+        DROP TABLE IF EXISTS izvedena_lit_dela CASCADE;
     """)
     conn.commit()
-#verjetno ne bova uporabljala
+
 
 def uvozi_podatke():
     cur.execute("""
@@ -151,11 +168,62 @@ def uvozi_podatke():
 
                 INSERT INTO zanr(naslov) VALUES ('indie');
                 INSERT INTO zanr(naslov) VALUES ('pop');
-                INSERT INTO zanr(naslov) VALUES ('punk');
+                INSERT INTO zanr(naslov) VALUES ('elektro');
 
                 INSERT INTO album(naslov, izdan, opis, cena) VALUES ('Kdo ponareja?', to_date('13-05-2018', 'dd-mm-yyyy'), 'Kolektiv je s tem albumom vstopil na sceno.', 0);
 
-                --INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Zivim kot ponarejevalc', 3, to_date('21-10-2017', 'dd-mm-yyyy'), 1, 0);
+                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Zivim kot ponarejevalc', '2 minutes 7 seconds', to_date('21-10-2017', 'dd-mm-yyyy'), 2, 0);
+                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Ponaredki', '2 minutes 14 seconds', to_date('21-12-2017', 'dd-mm-yyyy'), 2, 0);
+                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Ponarejen svet', '2 minutes 38 seconds', to_date('15-01-2018', 'dd-mm-yyyy'), 2, 0);
+                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Vrednost originala', '2 minutes 12 seconds', to_date('26-02-2018', 'dd-mm-yyyy'), 2, 0);
+                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Banke znorijo', '1 minutes 25 seconds', to_date('11-03-2018', 'dd-mm-yyyy'), 3, 0);
+                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Sprosti se', '53 seconds', to_date('08-04-2018', 'dd-mm-yyyy'), 3, 0);
+
+                INSERT INTO lit_delo(naslov, izdan, zaloznik, tip) VALUES ('25', to_date('21-11-2017', 'dd-mm-yyyy'), 'Fake Wizard Productions', 'drama');
+                INSERT INTO lit_delo(naslov, izdan, zaloznik, tip) VALUES ('Soba', to_date('12-12-2017', 'dd-mm-yyyy'), 'Fake Wizard Productions', 'kratka zgodba');
+                INSERT INTO lit_delo(naslov, izdan, zaloznik, tip) VALUES ('Desno', to_date('19-01-2018', 'dd-mm-yyyy'), 'Fake Wizard Productions', 'novela');
+                INSERT INTO lit_delo(naslov, izdan, zaloznik, tip) VALUES ('Parazit', to_date('25-02-2018', 'dd-mm-yyyy'), 'Fake Wizard Productions', 'kratka zgodba');
+                INSERT INTO lit_delo(naslov, izdan, zaloznik, tip) VALUES ('Zapor', to_date('10-03-2018', 'dd-mm-yyyy'), 'Fake Wizard Productions', 'kratka zgodba');
+
+                INSERT INTO avtor_lit_dela(litdeloid, clanid) VALUES (1, 0);
+                INSERT INTO avtor_lit_dela(litdeloid, clanid) VALUES (2, 0);
+                INSERT INTO avtor_lit_dela(litdeloid, clanid) VALUES (3, 0);
+                INSERT INTO avtor_lit_dela(litdeloid, clanid) VALUES (4, 0);
+                INSERT INTO avtor_lit_dela(litdeloid, clanid) VALUES (5, 0);
+
+                INSERT INTO avtor_pesmi(pesemid, clanid) VALUES (1, 0);
+                INSERT INTO avtor_pesmi(pesemid, clanid) VALUES (2, 0);
+                INSERT INTO avtor_pesmi(pesemid, clanid) VALUES (3, 0);
+                INSERT INTO avtor_pesmi(pesemid, clanid) VALUES (4, 0);
+                INSERT INTO avtor_pesmi(pesemid, clanid) VALUES (5, 0);
+                INSERT INTO avtor_pesmi(pesemid, clanid) VALUES (6, 0);
+
+                INSERT INTO avtor_besedila_pesmi(pesemid, clanid) VALUES (1, 0);
+                INSERT INTO avtor_besedila_pesmi(pesemid, clanid) VALUES (2, 0);
+                INSERT INTO avtor_besedila_pesmi(pesemid, clanid) VALUES (3, 0);
+                INSERT INTO avtor_besedila_pesmi(pesemid, clanid) VALUES (4, 0);
+                INSERT INTO avtor_besedila_pesmi(pesemid, clanid) VALUES (5, 0);
+                INSERT INTO avtor_besedila_pesmi(pesemid, clanid) VALUES (6, 0);
+
+                INSERT INTO album_pesem(pesemid, albumid) VALUES (1, 1);
+                INSERT INTO album_pesem(pesemid, albumid) VALUES (2, 1);
+                INSERT INTO album_pesem(pesemid, albumid) VALUES (3, 1);
+                INSERT INTO album_pesem(pesemid, albumid) VALUES (4, 1);
+                INSERT INTO album_pesem(pesemid, albumid) VALUES (5, 1);
+                INSERT INTO album_pesem(pesemid, albumid) VALUES (6, 1);
+
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, admin) VALUES ('Mozi111', '123', 999, 'Nejc', 'Černe', to_date('21-09-1996', 'dd-mm-yyyy'), 'moški', true);
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Yonstopir', 'Ooteebae4ai', 100, 'Lucy', 'Boyle', to_date('25-10-1996', 'dd-mm-yyyy'), 'ženska');
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Thimpturaw', 'Ri8Ueyoo3oT', 225, 'Eve', 'Fletcher', to_date('03-05-1996', 'dd-mm-yyyy'), 'ženska');
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Whistless', 'AhC0ahboog', 35, 'Isabella', 'Atkins', to_date('11-11-1996', 'dd-mm-yyyy'), 'ženska');
+
+                INSERT INTO dogodek(naslov, datum, tip) VALUES ('Predstavitveni koncert', to_date('13-06-2018', 'dd-mm-yyyy'), 'koncert');
+
+                INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (1, 1);
+                INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (1, 2);
+                INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (1, 3);
+                INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (1, 4);
+                INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (1, 5);
             """)
     conn.commit()
 
