@@ -11,35 +11,95 @@ import auth_public as auth
 import psycopg2, psycopg2.extensions, psycopg2.extras
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE) # se znebimo problemov s šumniki
 
+static_dir = "./static"
 # odkomentiraj, če želiš sporočila o napakah
 # debug(True)
 
-@get('/')
+@route("/")
+def main():
+    redirect("/clani/")
+
+@route("/static/<filename:path>")
+def static(filename):
+    """Splošna funkcija, ki servira vse statične datoteke iz naslova
+       /static/..."""
+    return static_file(filename, root=static_dir)
+
+@get('/clani/')
 def index():
     cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
-    return template('clani.html', clani=cur)
+    return template('residents.html', clani=cur)
 
-@get('/uporabniki/:x/')
-def transakcije(x):
+@get('/gallery/')
+def index():
+    cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
+    return template('gallery.html', clani=cur)
+
+@get('/index/')
+def index():
+    cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
+    return template('index.html', clani=cur)
+
+@get('/news/')
+def index():
+    cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
+    return template('news.html', clani=cur)
+
+@get('/parties/')
+def index():
+    cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
+    return template('parties.html', clani=cur)
+
+@get('/contacts/')
+def uporabnik():
+    x = 0
     cur.execute("SELECT * FROM uporabnik WHERE stanje > %s ORDER BY stanje, id", [int(x)])
-    return template('uporabniki.html', x=x, napaka = "Vse OK", transakcije=cur)
+    return template('contacts.html', x=x, napaka = "Vse OK", uporabniki=cur)
 
-@post('/uporabniki/:x/')
-def transakcijePost(x):
+@post('/contacts/')
+def uporabnik():
+    x = 0
     cur.execute("SELECT * FROM uporabnik WHERE stanje > %s ORDER BY stanje, id", [int(x)])
     #spremenljivko smo shranili v znesek
-    ZnesekPython = request.forms.znesek
-    RacunPython = request.forms.racun
-    OpisPython = request.forms.opis
-    print(ZnesekPython)
-    #da nas preusmeri, če je vse v redu
-    try:
-        PraviRacun=int(RacunPython) #ce se to da
-        cur.execute("INSERT INTO transkacija (znesek, racun, opis) VALUES FROM (%s, %s, %s)", [ZnesekPython, PraviRacun, OpisPython])
-    except: #če javi python napako
-        return template('uporabniki.html', x=x, napaka = "To ni stevilka",transakcije=cur)
-    redirect('/uporabniki/'+x+'/')
-    return template('uporabniki.html', x=x, napaka = "Vse OK", transakcije=cur)
+    UporabniskoIme = request.forms.uporabniskoime
+    Geslo = request.forms.geslo
+    Stanje = request.forms.stanje
+    Ime = request.forms.ime
+    Priimek = request.forms.priimek
+    Rojstvo = request.forms.rojstvo
+    Spol = request.forms.spol
+    if UporabniskoIme != "":
+        try:
+            #PraviRacun=int(RacunPython)
+            cur.execute("INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES (%s, %s, %s, %s, %s, to_date(%s, 'yyyy-mm-dd'), %s);",
+                        [UporabniskoIme, Geslo, Stanje, Ime, Priimek, Rojstvo, Spol])
+        except:
+            return template('contacts.html', x=x, napaka = "Napaka pri dodajanju uporabnika",uporabniki=cur)
+        redirect('/contacts/')
+    return template('contacts.html', x=x, napaka = "Vse OK", uporabniki=cur)
+
+
+# @get('/uporabniki/:x/')
+# def transakcije(x):
+#     cur.execute("SELECT * FROM uporabnik WHERE stanje > %s ORDER BY stanje, id", [int(x)])
+#     return template('uporabniki.html', x=x, napaka = "Vse OK", uporabniki=cur)
+
+#@post('/uporabniki/:x/')
+#def transakcijePost(x):
+#    cur.execute("SELECT * FROM uporabnik WHERE stanje > %s ORDER BY stanje, id", [int(x)])
+#    #spremenljivko smo shranili v znesek
+#    ZnesekPython = request.forms.znesek
+#    RacunPython = request.forms.racun
+#    OpisPython = request.forms.opis
+#    print(ZnesekPython)
+#    #da nas preusmeri, če je vse v redu
+#    try:
+#        PraviRacun=int(RacunPython) #ce se to da
+#        cur.execute("INSERT INTO transkacija (znesek, racun, opis) VALUES FROM (%s, %s, %s)", #[ZnesekPython, PraviRacun, OpisPython])
+#    except: #če javi python napako
+#        return template('uporabniki.html', x=x, napaka = "To ni stevilka",transakcije=cur)
+#    redirect('/uporabniki/'+x+'/')
+#    return template('uporabniki.html', x=x, napaka = "Vse OK", transakcije=cur)
 
 
 

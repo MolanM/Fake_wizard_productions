@@ -9,19 +9,21 @@
   <tr>
      <th>ID</th>
      <th>Uporabnisko ime</th>
-     <th>Stane</th>
+     <th>Stanje</th>
      <th>Ime</th>
      <th>Priimek</th>
-	 <th>rojstvo</th>
-     <th>spol_uporabnika</th>
+	 <th>Rojstni datum</th>
+     <th>Spol</th>
   </tr>
-  %for (id, uporabnisko_ime, ime, priimek, rojstvo, spol_uporabnika) in uporabniki:
+  %for (id, uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, gru, admin) in uporabniki:
     <tr>
        <td>{{id}}</td>
        <td>{{uporabnisko_ime}}</td>
+	   <td>{{stanje}}</td>
        <td>{{ime}}</td>
        <td>{{priimek}}</td>
        <td>{{rojstvo}}</td>
+	   <td>{{spol_uporabnika}}</td>
     </tr>
   %end
   </table>
@@ -32,7 +34,11 @@
   Opis: <input placeholder="Opis transakcije" name="opis"/>
   <button>To je gumb</button>
   </form>
-	
+  
+  <form>
+  {{napaka}}
+  </form>
+  
   <p>
     <a href="/">Komitenti</a>
   </p>

@@ -1,4 +1,4 @@
-db = 'banka2018_martinm'
+db = 'sem2018_nejcc'
 host = 'baza.fmf.uni-lj.si'
 user = 'javnost'
 password = 'javnogeslo'
