@@ -16,13 +16,31 @@ psycopg2.extensions.register_type(psycopg2.extensions.UNICODE) # se znebimo prob
 
 @get('/')
 def index():
-    cur.execute("SELECT * FROM oseba ORDER BY priimek, ime")
-    return template('komitenti.html', osebe=cur)
+    cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
+    return template('clani.html', clani=cur)
 
-@get('/transakcije/:x/')
+@get('/uporabniki/:x/')
 def transakcije(x):
-    cur.execute("SELECT * FROM transakcija WHERE znesek > %s ORDER BY znesek, id", [int(x)])
-    return template('transakcije.html', x=x, transakcije=cur)
+    cur.execute("SELECT * FROM uporabnik WHERE stanje > %s ORDER BY stanje, id", [int(x)])
+    return template('uporabniki.html', x=x, napaka = "Vse OK", transakcije=cur)
+
+@post('/uporabniki/:x/')
+def transakcijePost(x):
+    cur.execute("SELECT * FROM uporabnik WHERE stanje > %s ORDER BY stanje, id", [int(x)])
+    #spremenljivko smo shranili v znesek
+    ZnesekPython = request.forms.znesek
+    RacunPython = request.forms.racun
+    OpisPython = request.forms.opis
+    print(ZnesekPython)
+    #da nas preusmeri, če je vse v redu
+    try:
+        PraviRacun=int(RacunPython) #ce se to da
+        cur.execute("INSERT INTO transkacija (znesek, racun, opis) VALUES FROM (%s, %s, %s)", [ZnesekPython, PraviRacun, OpisPython])
+    except: #če javi python napako
+        return template('uporabniki.html', x=x, napaka = "To ni stevilka",transakcije=cur)
+    redirect('/uporabniki/'+x+'/')
+    return template('uporabniki.html', x=x, napaka = "Vse OK", transakcije=cur)
+
 
 
 

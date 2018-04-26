@@ -1,33 +1,33 @@
 <html>
 <head>
-  <title>Komitenti</title>
+  <title>Clani</title>
 </head>
 <body>
-  <h2>Komitenti banke</h2>
+  <h2>Clani kolektiva</h2>
 
   <table cellpadding="0" cellspacing="0" border="1">
   <tr>
-     <th>Emšo</th>
+     <th>ID</th>
      <th>Ime</th>
      <th>Priimek</th>
      <th>Datum rojstva</th>
-     <th>Ulica</th>
-     <th>Pošta</th>
+     <th>Naslov</th>
+     <th>Življenjepis</th>
   </tr>
-  %for (emso,ime,priimek,rojstvo,ulica,posta) in osebe:
+  %for (id,ime,priimek,rojstvo,naslov,bio) in clani:
     <tr>
-       <td>{{emso}}</td>
+       <td>{{id}}</td>
        <td>{{ime}}</td>
        <td>{{priimek}}</td>
        <td>{{rojstvo}}</td>
-       <td>{{ulica}}</td>
-       <td>{{posta}}</td>
+       <td>{{naslov}}</td>
+       <td>{{bio}}</td>
     </tr>
   %end
   </table>
 
   <p>
-    <a href="/transakcije/1000/">Transakcije</a>
+    <a href="/uporabniki/0/">Uporabniki</a>
   </p>
 
 </body>

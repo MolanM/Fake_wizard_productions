@@ -1,0 +1,41 @@
+<html>
+<head>
+  <title>Uporabniki</title>
+</head>
+<body>
+  <h2>Uporabniki s stanjem nad {{x}} evri</h2>
+
+  <table cellpadding="0" cellspacing="0" border="1">
+  <tr>
+     <th>ID</th>
+     <th>Uporabnisko ime</th>
+     <th>Stane</th>
+     <th>Ime</th>
+     <th>Priimek</th>
+	 <th>rojstvo</th>
+     <th>spol_uporabnika</th>
+  </tr>
+  %for (id, uporabnisko_ime, ime, priimek, rojstvo, spol_uporabnika) in uporabniki:
+    <tr>
+       <td>{{id}}</td>
+       <td>{{uporabnisko_ime}}</td>
+       <td>{{ime}}</td>
+       <td>{{priimek}}</td>
+       <td>{{rojstvo}}</td>
+    </tr>
+  %end
+  </table>
+  
+  <form methos="post">
+  Znesek: <input placeholder="Vnesi znesek" type="number" name="znesek"/>
+  Račun: <input placeholder="Vnesi stevilko racuna" name="racun"/>
+  Opis: <input placeholder="Opis transakcije" name="opis"/>
+  <button>To je gumb</button>
+  </form>
+	
+  <p>
+    <a href="/">Komitenti</a>
+  </p>
+
+</body>
+</html>
