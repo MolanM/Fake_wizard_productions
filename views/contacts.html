@@ -41,51 +41,69 @@
         <div class="wrapper">
 		
 		  <h2>Uporabniki</h2>
-		  <table cellpadding="0" cellspacing="0" border="1">
+		  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
 		  <tr>
 			 <th>ID</th>
 			 <th>Uporabnisko ime</th>
 			 <th>Geslo</th>
-			 <th>Stanje</th>
-			 <th>Ime</th>
-			 <th>Priimek</th>
-			 <th>Rojstni datum</th>
-			 <th>Spol</th>
+			 <!-- <th>Stanje</th> -->
+			 <!-- <th>Ime</th> -->
+			 <!-- <th>Priimek</th> -->
+			 <!-- <th>Rojstni datum</th> -->
+			 <!-- <th>Spol</th> -->
 		  </tr>
 		  %for (id, uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, gru, admin) in uporabniki:
 			<tr>
 			   <td>{{id}}</td>
-			   <td>{{uporabnisko_ime}}</td>
+			   <td><a href="/user/{{id}}/">{{uporabnisko_ime}}</a></td>
 			   <td>{{geslo}}</td>
-			   <td>{{stanje}}</td>
-			   <td>{{ime}}</td>
-			   <td>{{priimek}}</td>
-			   <td>{{rojstvo}}</td>
-			   <td>{{spol_uporabnika}}</td>
+			   <!-- <td>{{stanje}}</td> -->
+			   <!-- <td>{{ime}}</td> -->
+			   <!-- <td>{{priimek}}</td> -->
+			   <!-- <td>{{rojstvo}}</td> -->
+			   <!-- <td>{{spol_uporabnika}}</td> -->
 			</tr>
 		  %end
 		  </table>
 		  
-		  <form method="post">
-		  Uporabnisko ime: <input placeholder="Vnesi uporabnisko ime" name="uporabniskoime"/>
-		  Geslo: <input placeholder="Vnesi geslo" type="password" name="geslo"/>
-		  Stanje: <input placeholder="Vnesi stanje" type="number" name="stanje"/>
-		  Ime: <input placeholder="Vnesi ime" name="ime"/>
-		  Priimek: <input placeholder="Vnesi priimek" name="priimek"/>
-		  Rojstvo: <input placeholder="Vnesi rojstni datum" type="date" name="rojstvo"/>
-		  Spol:  <select name="spol">
-				  <option value="moški">moški</option>
-				  <option value="ženska">ženska</option>
-				  <option value="drugo">drugo</option>
-				 </select> 
-		  <input type="submit" value="Submit">
-		  <input type="reset">
+		  <h2>Dodaj uporabnika</h2>
+		  <form id = "ContactForm" method="post">
+			<div>
+			  <div class = "wrapper"> <span> Uporabnisko ime: </span>
+				<input placeholder="Vnesi uporabnisko ime" name="uporabniskoime"/> 
+			  </div>
+			  <div class = "wrapper"> <span> Geslo: </span> 
+				<input placeholder="Vnesi geslo" type="password" name="geslo1"/>
+			  </div>
+			  <div class = "wrapper"> <span> Ponovi geslo: </span> 
+				<input placeholder="Ponovno vnesi geslo" type="password" name="geslo2"/>
+			  </div>
+			  <div class = "wrapper"> <span> Stanje: </span> 
+				<input placeholder="Vnesi stanje" type="number" name="stanje"/> 
+			  </div>
+			  <div class = "wrapper"> <span> Ime: </span> 
+				<input placeholder="Vnesi ime" name="ime"/> 
+			  </div>
+			  <div class = "wrapper"> <span> Priimek: </span> 
+				<input placeholder="Vnesi priimek" name="priimek"/> 
+			  </div>
+			  <div class = "wrapper"> <span> Rojstvo: </span> 
+				<input placeholder="Vnesi rojstni datum" type="date" name="rojstvo"/> 
+			  </div>
+			  <div class = "wrapper"> <span> Spol: </span>  <select name="spol">
+					  <option value="moški">moški</option>
+					  <option value="ženska">ženska</option>
+					  <option value="drugo">drugo</option>
+					 </select> </div>
+			  <input type="submit" value="Submit">
+			  <input type="reset"> </div>
 		  <!-- <button>Dodaj uporabnika</button> -->
 		  </form>
 		  
 		  <form>
 		  {{napaka}}
 		  </form>
+		  
           <h2>Contact Form</h2>
           <form id="ContactForm" action="#">
             <div>

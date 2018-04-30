@@ -4,6 +4,8 @@
 # uvozimo bottle.py
 from bottle import *
 
+import hashlib # računanje MD5 kriptografski hash za gesla
+
 # uvozimo ustrezne podatke za povezavo
 import auth_public as auth
 
@@ -11,9 +13,17 @@ import auth_public as auth
 import psycopg2, psycopg2.extensions, psycopg2.extras
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE) # se znebimo problemov s šumniki
 
+secret = "1094107m907oz982982i111"
 static_dir = "./static"
 # odkomentiraj, če želiš sporočila o napakah
 # debug(True)
+
+def password_md5(s):
+    """Vrni MD5 hash danega UTF-8 niza. Gesla vedno spravimo v bazo
+       kodirana s to funkcijo."""
+    h = hashlib.md5()
+    h.update(s.encode('utf-8'))
+    return h.hexdigest()
 
 @route("/")
 def main():
@@ -50,11 +60,10 @@ def index():
     cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
     return template('parties.html', clani=cur)
 
-@get('/contacts/')
+@route('/contacts/')
 def uporabnik():
-    x = 0
-    cur.execute("SELECT * FROM uporabnik WHERE stanje > %s ORDER BY stanje, id", [int(x)])
-    return template('contacts.html', x=x, napaka = "Vse OK", uporabniki=cur)
+    cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
+    return template('contacts.html', x=0, napaka = "Vse OK", uporabniki=cur)
 
 @post('/contacts/')
 def uporabnik():
@@ -62,21 +71,61 @@ def uporabnik():
     cur.execute("SELECT * FROM uporabnik WHERE stanje > %s ORDER BY stanje, id", [int(x)])
     #spremenljivko smo shranili v znesek
     UporabniskoIme = request.forms.uporabniskoime
-    Geslo = request.forms.geslo
+    Geslo1 = request.forms.geslo1
+    Geslo2 = request.forms.geslo2
     Stanje = request.forms.stanje
     Ime = request.forms.ime
     Priimek = request.forms.priimek
     Rojstvo = request.forms.rojstvo
     Spol = request.forms.spol
-    if UporabniskoIme != "":
+    cur.execute("SELECT 1 FROM uporabnik WHERE uporabnisko_ime=%s", [UporabniskoIme])
+    if cur.fetchone():
+        # Uporabnik že obstaja
+        cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
+        return template('contacts.html', x=x, napaka = 'To uporabniško ime je že zavzeto', uporabniki=cur)
+    elif not Geslo1 == Geslo2:
+        cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
+        return template('contacts.html', x=x, napaka = 'Gesli se ne ujemata', uporabniki=cur)
+    else:
         try:
             #PraviRacun=int(RacunPython)
             cur.execute("INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES (%s, %s, %s, %s, %s, to_date(%s, 'yyyy-mm-dd'), %s);",
-                        [UporabniskoIme, Geslo, Stanje, Ime, Priimek, Rojstvo, Spol])
+                            [UporabniskoIme, password_md5(Geslo1), Stanje, Ime, Priimek, Rojstvo, Spol])
+            redirect('/contacts/')
         except:
-            return template('contacts.html', x=x, napaka = "Napaka pri dodajanju uporabnika",uporabniki=cur)
-        redirect('/contacts/')
-    return template('contacts.html', x=x, napaka = "Vse OK", uporabniki=cur)
+            cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
+            return template('contacts.html', x=x, napaka = "Napaka pri dodajanju uporabnika", uporabniki=cur)
+
+@route("/user/<id>/")
+def user(id):
+    """Prikaži stran uporabnika"""
+    # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
+    cur.execute("SELECT * FROM uporabnik WHERE id = %s", [int(id)])
+    Uporabnik = cur.fetchone()
+    cur.execute("SELECT naslov FROM pesem JOIN kupil_pesem ON pesem.id = kupil_pesem.pesemid WHERE uporabnikid = %s", [int(id)])
+    KupljenePesmi = []
+    for (naslov,) in cur:
+        KupljenePesmi.append(naslov)
+    cur.execute("SELECT naslov FROM album JOIN kupil_album ON album.id = kupil_album.albumid WHERE uporabnikid = %s", [int(id)])
+    KupljeniAlbumi = []
+    for (naslov,) in cur:
+        KupljeniAlbumi.append(naslov)
+    cur.execute("SELECT naslov FROM dogodek JOIN udelezba_dogodka ON dogodek.id = udelezba_dogodka.dogodekid WHERE uporabnikid = %s", [int(id)])
+    UdelezeniDogodki = []
+    for (naslov,) in cur:
+        UdelezeniDogodki.append(naslov)
+    # Prikažemo predlogo
+    return template("user.html", uporabnik=Uporabnik, pesmi=KupljenePesmi, albumi=KupljeniAlbumi, dogodki=UdelezeniDogodki)
+
+@post("/user/<id>/")
+def user(id):
+    """Prikaži stran uporabnika"""
+    # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
+    sprememba = request.forms.stanje
+    cur.execute("UPDATE uporabnik SET stanje = stanje + %s WHERE id = %s", [sprememba, int(id)])
+    cur.execute("SELECT * FROM uporabnik WHERE id = %s", [int(id)])
+    # Prikažemo predlogo
+    return template("user.html", uporabnik=cur.fetchone())
 
 
 # @get('/uporabniki/:x/')

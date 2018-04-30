@@ -18,7 +18,7 @@
   %for (id, uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, gru, admin) in uporabniki:
     <tr>
        <td>{{id}}</td>
-       <td>{{uporabnisko_ime}}</td>
+       <a href="/user/{{id}}/">{{uporabnisko_ime}}</a>
 	   <td>{{stanje}}</td>
        <td>{{ime}}</td>
        <td>{{priimek}}</td>

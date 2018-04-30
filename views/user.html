@@ -39,28 +39,56 @@
       <!--content -->
       <article id="content">
         <div class="wrapper">
-          <h2>Night Club Residents</h2>
+		%(id, uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, gru, admin) = uporabnik
+          <h2>{{uporabnisko_ime}}</h2>
           <div class="wrapper">
-			  <table cellpadding="0" cellspacing="0" border="1" width=100%>
-			  <tr>
-				 <th>ID</th>
-				 <th>Ime</th>
-				 <th>Priimek</th>
-				 <th>Datum rojstva</th>
-				 <th>Naslov</th>
-				 <th>Življenjepis</th>
-			  </tr>
-			  %for (id,ime,priimek,rojstvo,naslov,bio) in clani:
-				<tr>
-				   <td>{{id}}</td>
-				   <td>{{ime}}</td>
-				   <td>{{priimek}}</td>
-				   <td>{{rojstvo}}</td>
-				   <td>{{naslov}}</td>
-				   <td>{{bio}}</td>
-				</tr>
+			  <p class="pad_bot2"><span class="color2">{{ime}} {{priimek}}</span> <br> 
+			  <span class="color1">Spol: {{spol_uporabnika}}</span> <br>
+			  <span class="color1">Rojstni datum: {{rojstvo}}</span> <br>
+			  <span class="color1">Stanje: {{stanje}}</span> </p>
+			  
+			  <form method="post">
+			  Ponaredi uporabniku stanje: <input placeholder="Kolicina" type="number" name="stanje"/>
+			  <input type="submit" value="Submit">
+			  <input type="reset">
+			  </form>
+			  
+			  <p>
+			  %if pesmi:
+				  <h3>Kupljene pesmi</h3>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
+				  %for naslov in pesmi:
+					<tr>
+					   <td>{{naslov}}</td>
+					</tr>
+				  %end
+				  </table>
 			  %end
-			  </table>
+			  </p>
+			  <p>
+			  %if albumi:
+				  <h3>Kupljeni albumi</h3>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
+				  %for naslov in albumi:
+					<tr>
+					   <td>{{naslov}}</td>
+					</tr>
+				  %end
+				  </table>
+			  %end
+			  </p>
+			  <p>
+			  %if dogodki:
+				  <h3>Udelezeni dogodki</h3>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
+				  %for naslov in dogodki:
+					<tr>
+					   <td>{{naslov}}</td>
+					</tr>
+				  %end
+				  </table>
+			  %end
+			  </p>
             <!-- <div class="cols marg_right1">
               <figure class="pad_bot1"><img src="images/page4_img1.jpg" alt=""></figure>
               <p class="pad_bot2"><span class="color2">Lilly Watson</span> <span class="color1">Singer</span><br>
