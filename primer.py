@@ -77,7 +77,7 @@ def uporabnik():
     Ime = request.forms.ime
     Priimek = request.forms.priimek
     Rojstvo = request.forms.rojstvo
-    Spol = request.forms.spol
+    Spol = request.forms.spoli
     Slika = request.files.uploaded
     cur.execute("SELECT 1 FROM uporabnik WHERE uporabnisko_ime=%s", [UporabniskoIme])
     if cur.fetchone():
@@ -90,29 +90,31 @@ def uporabnik():
     elif Slika is None:
         cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
         return template('contacts.html', x=x, napaka = 'Niste dodali slike', uporabniki=cur)
-    name, ext = os.path.splitext(Slika.filename)
-    if ext.lower() not in ('.png','.jpg','.jpeg'):
-        cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-        return template('contacts.html', x=x, napaka = 'Slika ni v pravem formatu', uporabniki=cur)
-    else:
-        try:
-            print("test1")
-            #PraviRacun=int(RacunPython)    
-            cur.execute("INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES (%s, %s, %s, %s, %s, to_date(%s, 'yyyy-mm-dd'), %s);", [UporabniskoIme, password_md5(Geslo1), Stanje, Ime, Priimek, Rojstvo, Spol])
-            print("test2")
-            cur.execute("SELECT last_value FROM uporabnik_id_seq") #ID novega uporabnika
-            print("test3")
-            userid=cur.fetchone()
-            print(userid[0])
-            filename = str(userid[0]) + ext
-            print(filename)
-            Slika.filename = filename
-            save_path = os.path.join('static','images','uploads',filename) 
-            Slika.save(save_path) # appends upload.filename automatically
-            redirect('/contacts/')
-        except:
+    elif Slika is not None:
+        name, ext = os.path.splitext(Slika.filename)
+        if ext.lower() not in ('.png','.jpg','.jpeg'):
             cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-            return template('contacts.html', x=x, napaka = "Napaka pri dodajanju uporabnika", uporabniki=cur)
+            return template('contacts.html', x=x, napaka = 'Slika ni v pravem formatu', uporabniki=cur)
+        else:
+            try:
+                print("test1")
+                print([str(UporabniskoIme), password_md5(Geslo1), int(Stanje), str(Ime), str(Priimek), str(Rojstvo), str(Spol)])
+                #PraviRacun=int(RacunPython)    
+                cur.execute("INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES (%s, %s, %s, %s, %s, to_date(%s, 'yyyy-mm-dd'), %s);", [str(UporabniskoIme), password_md5(Geslo1), int(Stanje), str(Ime), str(Priimek), str(Rojstvo), str(Spol)])
+                print("test2")
+                cur.execute("SELECT last_value FROM uporabnik_id_seq") #ID novega uporabnika
+                print("test3")
+                userid=cur.fetchone()
+                print(userid[0])
+                filename = str(userid[0]) + ext
+                print(filename)
+                Slika.filename = filename
+                save_path = os.path.join('static','images','uploads',filename) 
+                Slika.save(save_path) # appends upload.filename automatically
+                redirect('/contacts/')
+            except:
+                cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
+                return template('contacts.html', x=x, napaka = "Napaka pri dodajanju uporabnika", uporabniki=cur)
 
 @route("/user/<id>/")
 def user(id):
