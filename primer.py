@@ -78,6 +78,7 @@ def uporabnik():
     Priimek = request.forms.priimek
     Rojstvo = request.forms.rojstvo
     Spol = request.forms.spol
+    Slika = request.files.uploaded
     cur.execute("SELECT 1 FROM uporabnik WHERE uporabnisko_ime=%s", [UporabniskoIme])
     if cur.fetchone():
         # Uporabnik že obstaja
@@ -86,11 +87,28 @@ def uporabnik():
     elif not Geslo1 == Geslo2:
         cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
         return template('contacts.html', x=x, napaka = 'Gesli se ne ujemata', uporabniki=cur)
+    elif Slika is None:
+        cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
+        return template('contacts.html', x=x, napaka = 'Niste dodali slike', uporabniki=cur)
+    name, ext = os.path.splitext(Slika.filename)
+    if ext.lower() not in ('.png','.jpg','.jpeg'):
+        cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
+        return template('contacts.html', x=x, napaka = 'Slika ni v pravem formatu', uporabniki=cur)
     else:
         try:
-            #PraviRacun=int(RacunPython)
-            cur.execute("INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES (%s, %s, %s, %s, %s, to_date(%s, 'yyyy-mm-dd'), %s);",
-                            [UporabniskoIme, password_md5(Geslo1), Stanje, Ime, Priimek, Rojstvo, Spol])
+            print("test1")
+            #PraviRacun=int(RacunPython)    
+            cur.execute("INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES (%s, %s, %s, %s, %s, to_date(%s, 'yyyy-mm-dd'), %s);", [UporabniskoIme, password_md5(Geslo1), Stanje, Ime, Priimek, Rojstvo, Spol])
+            print("test2")
+            cur.execute("SELECT last_value FROM uporabnik_id_seq") #ID novega uporabnika
+            print("test3")
+            userid=cur.fetchone()
+            print(userid[0])
+            filename = str(userid[0]) + ext
+            print(filename)
+            Slika.filename = filename
+            save_path = os.path.join('static','images','uploads',filename) 
+            Slika.save(save_path) # appends upload.filename automatically
             redirect('/contacts/')
         except:
             cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
@@ -123,9 +141,7 @@ def user(id):
     # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
     sprememba = request.forms.stanje
     cur.execute("UPDATE uporabnik SET stanje = stanje + %s WHERE id = %s", [sprememba, int(id)])
-    cur.execute("SELECT * FROM uporabnik WHERE id = %s", [int(id)])
-    # Prikažemo predlogo
-    return template("user.html", uporabnik=cur.fetchone())
+    redirect('/user/'+str(id)+'/')
 
 
 # @get('/uporabniki/:x/')

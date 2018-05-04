@@ -67,7 +67,7 @@
 		  </table>
 		  
 		  <h2>Dodaj uporabnika</h2>
-		  <form id = "ContactForm" method="post">
+		  <form id = "ContactForm" method="post" enctype="multipart/form-data">
 			<div>
 			  <div class = "wrapper"> <span> Uporabnisko ime: </span>
 				<input placeholder="Vnesi uporabnisko ime" name="uporabniskoime"/> 
@@ -95,6 +95,20 @@
 					  <option value="ženska">ženska</option>
 					  <option value="drugo">drugo</option>
 					 </select> </div>
+              <script type="text/javascript">
+										function PreviewImage() {
+											var oFReader = new FileReader();
+											oFReader.readAsDataURL(document.getElementById("uploadImage").files[0]);
+											oFReader.onload = function (oFREvent) {
+												document.getElementById("uploadPreview").src = oFREvent.target.result;
+											};
+										};
+									</script>
+			  <div class = "wrapper"> <span> Slika: </span> 
+				 <input type="file" name="uploaded" id="uploadImage"  onchange="PreviewImage();" >
+																	
+				  <img id="uploadPreview" style="max-width: 100px; max-height: 100px;"/> <!--style="width: 100px; height: 100px;"--> 
+			  </div>
 			  <input type="submit" value="Submit">
 			  <input type="reset"> </div>
 		  <!-- <button>Dodaj uporabnika</button> -->
