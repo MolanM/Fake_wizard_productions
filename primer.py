@@ -25,9 +25,30 @@ def password_md5(s):
     h.update(s.encode('utf-8'))
     return h.hexdigest()
 
+def get_user(auto_login = False):
+    """Poglej cookie in ugotovi, kdo je prijavljeni uporabnik,
+       vrni njegov username in ime. Če ni prijavljen, presumeri
+       na stran za prijavo ali vrni None (advisno od auto_login).
+    """
+    # Dobimo username iz piškotka
+    username = request.get_cookie('username', secret=secret)
+    # Preverimo, ali ta uporabnik obstaja
+    if username is not None:
+        cur.execute("SELECT uporabnisko_ime, ime FROM uporabnik WHERE uporabnisko_ime=%s",
+                  [username])
+        r = cur.fetchone()
+        if r is not None:
+            # uporabnik obstaja, vrnemo njegove podatke
+            return r
+    # Če pridemo do sem, uporabnik ni prijavljen, naredimo redirect
+    if auto_login:
+        redirect('/login/')
+    else:
+        return None
+
 @route("/")
 def main():
-    redirect("/clani/")
+    redirect("/index/")
 
 @route("/static/<filename:path>")
 def static(filename):
@@ -42,30 +63,74 @@ def index():
 
 @get('/gallery/')
 def index():
-    cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
-    return template('gallery.html', clani=cur)
+    return template('gallery.html')
 
 @get('/index/')
 def index():
-    cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
-    return template('index.html', clani=cur)
+    if get_user():
+        (username_login, ime_login) = get_user()
+    else:
+        username_login = "Stranger"
+    return template('index.html', prijavljen_uporabnik=username_login)
 
 @get('/news/')
 def index():
-    cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
-    return template('news.html', clani=cur)
+    return template('news.html')
 
 @get('/parties/')
 def index():
+    return template('parties.html')
+
+@get('/register/')
+def index():
     cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
-    return template('parties.html', clani=cur)
+    return template('register.html', napaka="Vse OK", barva="green", clani=cur)
+
+@get('/login/')
+def index():
+    if get_user():
+        (username_login, ime_login) = get_user()
+        return template('login.html', napaka="Ste že prijavljeni!", barva="red", prijavljen_uporabnik=username_login)
+    else:
+        return template('login.html', napaka="Vse OK", barva="green", prijavljen_uporabnik=None)
+
+@get("/logout/")
+def logout():
+    """Pobriši cookie in preusmeri na login."""
+    response.delete_cookie('username', path='/', domain='localhost')
+    redirect('/')
+
+@post("/login/")
+def login_post():
+    """Obdelaj izpolnjeno formo za prijavo"""
+    # Uporabniško ime, ki ga je uporabnik vpisal v formo
+    username = request.forms.uporabniskoime
+    # Izračunamo MD5 has gesla, ki ga bomo spravili
+    password = password_md5(request.forms.geslo)
+    # Preverimo, ali se je uporabnik pravilno prijavil
+    if username and password:
+        cur.execute("SELECT 1 FROM uporabnik WHERE uporabnisko_ime=%s AND geslo=%s",
+                  [username, password])
+        if cur.fetchone() is None:
+            # Username in geslo se ne ujemata
+            return template("login.html",
+                                   napaka="Uporabniško ime in geslo se ne ujemata", barva="red",
+                                   username=username, prijavljen_uporabnik=None)
+        else:
+            # Vse je v redu, nastavimo cookie in preusmerimo na glavno stran
+            response.set_cookie('username', username, path='/', secret=secret)
+            redirect("/")
+    else:
+        return template("login.html",
+                                   napaka="Nepravilna prijava", barva="red",
+                                   username=username, prijavljen_uporabnik=None)
 
 @route('/contacts/')
 def uporabnik():
     cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
     return template('contacts.html', x=0, napaka = "Vse OK", uporabniki=cur)
 
-@post('/contacts/')
+@post('/register/')
 def uporabnik():
     x = 0
     cur.execute("SELECT * FROM uporabnik WHERE stanje > %s ORDER BY stanje, id", [int(x)])
@@ -73,48 +138,51 @@ def uporabnik():
     UporabniskoIme = request.forms.uporabniskoime
     Geslo1 = request.forms.geslo1
     Geslo2 = request.forms.geslo2
-    Stanje = request.forms.stanje
+    if request.forms.stanje:
+        Stanje = request.forms.stanje
+    else:
+        Stanje = 0
     Ime = request.forms.ime
     Priimek = request.forms.priimek
     Rojstvo = request.forms.rojstvo
-    Spol = request.forms.spoli
-    Slika = request.files.uploaded
+    Spol = request.forms.get("spol")
+    #Slika = request.files.uploaded
     cur.execute("SELECT 1 FROM uporabnik WHERE uporabnisko_ime=%s", [UporabniskoIme])
     if cur.fetchone():
         # Uporabnik že obstaja
         cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-        return template('contacts.html', x=x, napaka = 'To uporabniško ime je že zavzeto', uporabniki=cur)
+        return template('register.html', x=x, napaka = 'To uporabniško ime je že zavzeto', barva="red", uporabniki=cur)
     elif not Geslo1 == Geslo2:
         cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-        return template('contacts.html', x=x, napaka = 'Gesli se ne ujemata', uporabniki=cur)
-    elif Slika is None:
+        return template('register.html', x=x, napaka = 'Gesli se ne ujemata', barva="red", uporabniki=cur)
+    #elif Slika is None:
+    #    cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
+    #    return template('contacts.html', x=x, napaka = 'Niste dodali slike', uporabniki=cur)
+    #elif Slika is not None:
+        #name, ext = os.path.splitext(Slika.filename)
+        #if ext.lower() not in ('.png','.jpg','.jpeg'):
+        #    cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
+        #    return template('contacts.html', x=x, napaka = 'Slika ni v pravem formatu', uporabniki=cur)
+    elif UporabniskoIme and Geslo1 and Geslo2 and Ime and Priimek and Rojstvo and Spol: #zamaknjeno za tab, če vključimo slike
+        #try:
+            #print([str(UporabniskoIme), password_md5(Geslo1), int(Stanje), str(Ime), str(Priimek), str(Rojstvo), str(Spol)])
+            #PraviRacun=int(RacunPython)
+            cur.execute("INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES (%s, %s, %s, %s, %s, to_date(%s, 'yyyy-mm-dd'), %s);", [str(UporabniskoIme), password_md5(Geslo1), int(Stanje), str(Ime), str(Priimek), str(Rojstvo), str(Spol)])
+            #cur.execute("SELECT last_value FROM uporabnik_id_seq") #ID novega uporabnika
+            #userid=cur.fetchone()
+            #filename = str(userid[0]) + ext
+            #Slika.filename = filename
+            #save_path = os.path.join('static','images','uploads',filename)
+            #Slika.save(save_path) # appends upload.filename automatically
+            redirect('/register/')
+            #cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
+            #return template('register.html', x=0, napaka = "Vse OK", barva="red", uporabniki=cur)
+        #except:
+        #    cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
+        #    return template('contacts.html', x=x, napaka = "Napaka pri dodajanju uporabnika", uporabniki=cur)
+    else:
         cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-        return template('contacts.html', x=x, napaka = 'Niste dodali slike', uporabniki=cur)
-    elif Slika is not None:
-        name, ext = os.path.splitext(Slika.filename)
-        if ext.lower() not in ('.png','.jpg','.jpeg'):
-            cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-            return template('contacts.html', x=x, napaka = 'Slika ni v pravem formatu', uporabniki=cur)
-        else:
-            try:
-                print("test1")
-                print([str(UporabniskoIme), password_md5(Geslo1), int(Stanje), str(Ime), str(Priimek), str(Rojstvo), str(Spol)])
-                #PraviRacun=int(RacunPython)    
-                cur.execute("INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES (%s, %s, %s, %s, %s, to_date(%s, 'yyyy-mm-dd'), %s);", [str(UporabniskoIme), password_md5(Geslo1), int(Stanje), str(Ime), str(Priimek), str(Rojstvo), str(Spol)])
-                print("test2")
-                cur.execute("SELECT last_value FROM uporabnik_id_seq") #ID novega uporabnika
-                print("test3")
-                userid=cur.fetchone()
-                print(userid[0])
-                filename = str(userid[0]) + ext
-                print(filename)
-                Slika.filename = filename
-                save_path = os.path.join('static','images','uploads',filename) 
-                Slika.save(save_path) # appends upload.filename automatically
-                redirect('/contacts/')
-            except:
-                cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-                return template('contacts.html', x=x, napaka = "Napaka pri dodajanju uporabnika", uporabniki=cur)
+        return template('register.html', x=x, napaka = 'Prosim izpolnite manjkajoče podatke', barva="red", uporabniki=cur)
 
 @route("/user/<id>/")
 def user(id):
@@ -122,27 +190,70 @@ def user(id):
     # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
     cur.execute("SELECT * FROM uporabnik WHERE id = %s", [int(id)])
     Uporabnik = cur.fetchone()
-    cur.execute("SELECT naslov FROM pesem JOIN kupil_pesem ON pesem.id = kupil_pesem.pesemid WHERE uporabnikid = %s", [int(id)])
-    KupljenePesmi = []
-    for (naslov,) in cur:
-        KupljenePesmi.append(naslov)
-    cur.execute("SELECT naslov FROM album JOIN kupil_album ON album.id = kupil_album.albumid WHERE uporabnikid = %s", [int(id)])
-    KupljeniAlbumi = []
-    for (naslov,) in cur:
-        KupljeniAlbumi.append(naslov)
-    cur.execute("SELECT naslov FROM dogodek JOIN udelezba_dogodka ON dogodek.id = udelezba_dogodka.dogodekid WHERE uporabnikid = %s", [int(id)])
-    UdelezeniDogodki = []
-    for (naslov,) in cur:
-        UdelezeniDogodki.append(naslov)
+    cur.execute("SELECT id,naslov FROM pesem JOIN kupil_pesem ON pesem.id = kupil_pesem.pesemid WHERE uporabnikid = %s", [int(id)])
+    KupljenePesmi = cur.fetchall()
+    cur.execute("SELECT id,naslov FROM album JOIN kupil_album ON album.id = kupil_album.albumid WHERE uporabnikid = %s", [int(id)])
+    KupljeniAlbumi = cur.fetchall()
+    cur.execute("SELECT id,naslov FROM dogodek JOIN udelezba_dogodka ON dogodek.id = udelezba_dogodka.dogodekid WHERE uporabnikid = %s", [int(id)])
+    UdelezeniDogodki = cur.fetchall()
     # Prikažemo predlogo
     return template("user.html", uporabnik=Uporabnik, pesmi=KupljenePesmi, albumi=KupljeniAlbumi, dogodki=UdelezeniDogodki)
+
+@route("/song/<id>/")
+def user(id):
+    """Prikaži stran uporabnika"""
+    # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
+    cur.execute("SELECT * FROM pesem WHERE id = %s", [int(id)])
+    Pesem = cur.fetchone()
+    (id, naslov, dolzina, izdan, zanr, cena) = Pesem
+    cur.execute("SELECT naslov FROM zanr WHERE id = %s", [int(zanr)])
+    Zanr = cur.fetchone()
+    cur.execute("SELECT clan.ime FROM avtor_pesmi JOIN clan ON avtor_pesmi.clanid = clan.id WHERE pesemid = %s", [int(zanr)])
+    Avtorji_p = []
+    for (ime,) in cur:
+        Avtorji_p.append(ime)
+    cur.execute("SELECT clan.ime FROM avtor_besedila_pesmi JOIN clan ON avtor_besedila_pesmi.clanid = clan.id WHERE pesemid = %s", [int(zanr)])
+    Avtorji_b = []
+    for (ime,) in cur:
+        Avtorji_b.append(ime)
+    # Prikažemo predlogo
+    cur.execute("SELECT album.id, album.naslov FROM album_pesem JOIN album ON album_pesem.albumid = album.id WHERE pesemid = %s", [int(id)])
+    Albumi = cur.fetchall()
+    return template("song.html", pesem=Pesem, zanr=Zanr, avtorji_pesmi = Avtorji_p, avtorji_besedila = Avtorji_b, albumi=Albumi)
+
+@route("/album/<id>/")
+def user(id):
+    """Prikaži stran uporabnika"""
+    # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
+    cur.execute("SELECT * FROM album WHERE id = %s", [int(id)])
+    Album = cur.fetchone()
+    cur.execute("SELECT SUM(dolzina) FROM album_pesem JOIN pesem ON album_pesem.pesemid = pesem.id WHERE albumid = %s", [int(id)])
+    Dolzina = cur.fetchone()
+    cur.execute("SELECT DISTINCT zanr.naslov FROM album_pesem JOIN pesem ON album_pesem.pesemid = pesem.id JOIN zanr ON pesem.zanr = zanr.id WHERE albumid = %s", [int(id)])
+    Zanri = []
+    for (naslov,) in cur:
+        Zanri.append(naslov)
+    cur.execute("SELECT pesem.id, pesem.naslov FROM album_pesem JOIN pesem ON album_pesem.pesemid = pesem.id WHERE albumid = %s", [int(id)])
+    Pesmi = cur.fetchall()
+    return template("album.html", album=Album, dolzina=Dolzina, zanri=Zanri, pesmi=Pesmi)
+
+@route("/event/<id>/")
+def user(id):
+    """Prikaži stran uporabnika"""
+    # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
+    cur.execute("SELECT * FROM dogodek WHERE id = %s", [int(id)])
+    Dogodek = cur.fetchone()
+    cur.execute('SELECT pesem.id, pesem.naslov FROM izvedene_pesmi JOIN pesem ON izvedene_pesmi.pesemid = pesem.id WHERE dogodekid = 1', [int(id)])
+    Pesmi = cur.fetchall()
+    return template("event.html", dogodek=Dogodek, pesmi=Pesmi)
 
 @post("/user/<id>/")
 def user(id):
     """Prikaži stran uporabnika"""
     # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
     sprememba = request.forms.stanje
-    cur.execute("UPDATE uporabnik SET stanje = stanje + %s WHERE id = %s", [sprememba, int(id)])
+    if sprememba:
+        cur.execute("UPDATE uporabnik SET stanje = stanje + %s WHERE id = %s", [sprememba, int(id)])
     redirect('/user/'+str(id)+'/')
 
 

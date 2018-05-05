@@ -66,60 +66,8 @@
 		  %end
 		  </table>
 		  
-		  <h2>Dodaj uporabnika</h2>
-		  <form id = "ContactForm" method="post" enctype="multipart/form-data">
-			<div>
-			  <div class = "wrapper"> <span> Uporabnisko ime: </span>
-				<input placeholder="Vnesi uporabnisko ime" name="uporabniskoime"/> 
-			  </div>
-			  <div class = "wrapper"> <span> Geslo: </span> 
-				<input placeholder="Vnesi geslo" type="password" name="geslo1"/>
-			  </div>
-			  <div class = "wrapper"> <span> Ponovi geslo: </span> 
-				<input placeholder="Ponovno vnesi geslo" type="password" name="geslo2"/>
-			  </div>
-			  <div class = "wrapper"> <span> Stanje: </span> 
-				<input placeholder="Vnesi stanje" type="number" name="stanje"/> 
-			  </div>
-			  <div class = "wrapper"> <span> Ime: </span> 
-				<input placeholder="Vnesi ime" name="ime"/> 
-			  </div>
-			  <div class = "wrapper"> <span> Priimek: </span> 
-				<input placeholder="Vnesi priimek" name="priimek"/> 
-			  </div>
-			  <div class = "wrapper"> <span> Rojstvo: </span> 
-				<input placeholder="Vnesi rojstni datum" type="date" name="rojstvo"/> 
-			  </div>
-			  <div class = "wrapper"> <span> Spol: </span>  <select name="spoli">
-					  <option value="moški">moški</option>
-					  <option value="ženska">ženska</option>
-					  <option value="drugo" selected="selected">drugo</option>
-					 </select> </div>
-              <script type="text/javascript">
-										function PreviewImage() {
-											var oFReader = new FileReader();
-											oFReader.readAsDataURL(document.getElementById("uploadImage").files[0]);
-											oFReader.onload = function (oFREvent) {
-												document.getElementById("uploadPreview").src = oFREvent.target.result;
-											};
-										};
-									</script>
-			  <div class = "wrapper"> <span> Slika: </span> 
-				 <input type="file" name="uploaded" id="uploadImage"  onchange="PreviewImage();" >
-																	
-				  <img id="uploadPreview" style="max-width: 100px; max-height: 100px;"/> <!--style="width: 100px; height: 100px;"--> 
-			  </div>
-			  <input type="submit" value="Submit">
-			  <input type="reset"> </div>
-		  <!-- <button>Dodaj uporabnika</button> -->
-		  </form>
-		  
-		  <form>
-		  {{napaka}}
-		  </form>
-		  
-          <h2>Contact Form</h2>
-          <form id="ContactForm" action="#">
+		 <h2>Contact Form</h2>
+          <form id="ContactForm" enctype="text/plain" action="mailto:našmail@mail.com" method="post">
             <div>
               <div class="wrapper"> <span>Name:</span>
                 <input type="text" class="input" >
@@ -183,8 +131,9 @@
             <div class="info">
               <h4>Join In</h4>
               <ul>
-                <li><a href="#">Sign In</a></li>
-                <li><a href="#">Forums</a></li>
+                <li><a href="/login/">Sign In</a></li>
+				<li><a href="/register/">Register</a></li>
+                <li><a href="/logout/">Log Out</a></li>
                 <li><a href="#">Promotions</a></li>
               </ul>
             </div>

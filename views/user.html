@@ -27,7 +27,7 @@
           <li><a href="/index/">Club</a></li>
           <li><a href="/parties/">Parties</a></li>
           <li><a href="/gallery/">Gallery</a></li>
-          <li class="active"><a href="/clani/">Residents</a></li>
+          <li><a href="/clani/">Residents</a></li>
           <li><a href="/news/">News</a></li>
           <li><a href="/contacts/">Contacts</a></li>
         </ul>
@@ -40,9 +40,20 @@
       <article id="content">
         <div class="wrapper">
 		%(id, uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, gru, admin) = uporabnik
-          <h2>{{uporabnisko_ime}}</h2>
+          <h2>{{uporabnisko_ime}}</h2> 
           <div class="wrapper">
-			  <p class="pad_bot2"><span class="color2">{{ime}} {{priimek}}</span> <br> 
+			  <p class="pad_bot2">
+			  %import os.path
+			  %for ext in ('.png','.jpg','.jpeg'):
+			  %path = os.path.join('static','images','uploads',str(id)+ext) 
+			  %if os.path.isfile(path):
+			  %break
+			  %else:
+			  %path = os.path.join('static','images','uploads',str(spol_uporabnika)+'.png')
+			  %end
+			  %end
+			  <img src="/{{path}}" style="max-width: 100px; max-height: 100px;"/> <br>
+			  <span class="color2">{{ime}} {{priimek}}</span> <br> 
 			  <span class="color1">Spol: {{spol_uporabnika}}</span> <br>
 			  <span class="color1">Rojstni datum: {{rojstvo}}</span> <br>
 			  <span class="color1">Stanje: {{stanje}}</span> </p>
@@ -57,9 +68,9 @@
 			  %if pesmi:
 				  <h3>Kupljene pesmi</h3>
 				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
-				  %for naslov in pesmi:
+				  %for id_pesmi,naslov in pesmi:
 					<tr>
-					   <td>{{naslov}}</td>
+					   <td><a href="/song/{{id_pesmi}}/" style="text-decoration: none">{{naslov}}</a></td>
 					</tr>
 				  %end
 				  </table>
@@ -69,9 +80,9 @@
 			  %if albumi:
 				  <h3>Kupljeni albumi</h3>
 				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
-				  %for naslov in albumi:
+				  %for id_albuma,naslov in albumi:
 					<tr>
-					   <td>{{naslov}}</td>
+					   <td><a href="/album/{{id_albuma}}/" style="text-decoration: none">{{naslov}}</a></td>
 					</tr>
 				  %end
 				  </table>
@@ -81,9 +92,9 @@
 			  %if dogodki:
 				  <h3>Udelezeni dogodki</h3>
 				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
-				  %for naslov in dogodki:
+				  %for id_dogodka,naslov in dogodki:
 					<tr>
-					   <td>{{naslov}}</td>
+					   <td><a href="/event/{{id_dogodka}}/" style="text-decoration: none">{{naslov}}</a></td>
 					</tr>
 				  %end
 				  </table>
@@ -144,8 +155,9 @@
             <div class="info">
               <h4>Join In</h4>
               <ul>
-                <li><a href="#">Sign In</a></li>
-                <li><a href="#">Forums</a></li>
+                <li><a href="/login/">Sign In</a></li>
+				<li><a href="/register/">Register</a></li>
+                <li><a href="/logout/">Log Out</a></li>
                 <li><a href="#">Promotions</a></li>
               </ul>
             </div>

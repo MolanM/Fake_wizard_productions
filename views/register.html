@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>nightclub | News</title>
+<title>nightclub | Contacts</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="all">
 <link rel="stylesheet" href="/static/css/layout.css" type="text/css" media="all">
@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="css/ie.css" type="text/css" media="all">
 <![endif]-->
 </head>
-<body id="page5">
+<body id="page6">
 <div class="bg1">
   <div class="main">
     <!--header -->
@@ -28,7 +28,7 @@
           <li><a href="/parties/">Parties</a></li>
           <li><a href="/gallery/">Gallery</a></li>
           <li><a href="/clani/">Residents</a></li>
-          <li class="active"><a href="/news/">News</a></li>
+          <li><a href="/news/">News</a></li>
           <li><a href="/contacts/">Contacts</a></li>
         </ul>
       </nav>
@@ -39,24 +39,58 @@
       <!--content -->
       <article id="content">
         <div class="wrapper">
-          <h2><strong>02.09.</strong> Sed ut perspiciatis unde omnis iste natus</h2>
-          <div class="wrapper pad_bot1">
-            <figure class="left marg_right1"><img src="/static/images/page5_img1.jpg" alt=""></figure>
-            <p class="color1 pad_bot1">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas.</p>
-            <p class="pad_bot1">Molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerufacilis est et expedita distinctio. Nam libero tepre cum soluta nobis est eligendi.</p>
-            <a href="#" class="link2">Read More</a> </div>
-          <h2><strong>29.08.</strong> Error sit voluptatem accusantium</h2>
-          <div class="wrapper pad_bot1">
-            <figure class="left marg_right1"><img src="/static/images/page5_img2.jpg" alt=""></figure>
-            <p class="color1 pad_bot1">Molestias excepturi sint occaecati cupiditate non facere possimus, omnis voluptas assum enda est, omnis dolor repellendus.</p>
-            <p class="pad_bot1">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eve provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga est et expedita distinctio cum soluta nobis eligendi.</p>
-            <a href="#" class="link2">Read More</a> </div>
-          <h2><strong>22.08.</strong> Nemo enim ipsam voluptatem quia voluptas</h2>
-          <div class="wrapper">
-            <figure class="left marg_right1"><img src="/static/images/page5_img3.jpg" alt=""></figure>
-            <p class="color1 pad_bot1">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas.</p>
-            <p class="pad_bot1">Molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerufacilis est et expedita distinctio. Nam libero tepre cum soluta nobis est eligendi.</p>
-            <a href="#" class="link2">Read More</a> </div>
+		
+		  <h2>Registriraj novega uporabnika</h2>
+		  <form id = "ContactForm" method="post" enctype="multipart/form-data">
+			<div>
+			  <div class = "wrapper"> <span> Uporabnisko ime: </span>
+			  <!-- TODO: prepreči posebne znake in presledke-->
+				<input placeholder="Vnesi uporabnisko ime" type="text" name="uporabniskoime"/> 
+			  </div>
+			  <div class = "wrapper"> <span> Geslo: </span> 
+				<input placeholder="Vnesi geslo" type="password" name="geslo1"/>
+			  </div>
+			  <div class = "wrapper"> <span> Ponovi geslo: </span> 
+				<input placeholder="Ponovno vnesi geslo" type="password" name="geslo2"/>
+			  </div>
+			  <div class = "wrapper"> <span> Stanje: </span> 
+				<input placeholder="Vnesi stanje" type="number" name="stanje"/> 
+			  </div>
+			  <div class = "wrapper"> <span> Ime: </span> 
+				<input placeholder="Vnesi ime" name="ime"/> 
+			  </div>
+			  <div class = "wrapper"> <span> Priimek: </span> 
+				<input placeholder="Vnesi priimek" name="priimek"/> 
+			  </div>
+			  <div class = "wrapper"> <span> Rojstvo: </span> 
+				<input placeholder="Vnesi rojstni datum" type="date" name="rojstvo"/> 
+			  </div>
+			  <div class = "wrapper"> <span> Spol: </span>  <select name="spol">
+					  <option value="moški">moški</option>
+					  <option value="ženska">ženska</option>
+					  <option value="drugo" selected="selected">drugo</option>
+					 </select> </div>
+              <!-- <script type="text/javascript">
+										function PreviewImage() {
+											var oFReader = new FileReader();
+											oFReader.readAsDataURL(document.getElementById("uploadImage").files[0]);
+											oFReader.onload = function (oFREvent) {
+												document.getElementById("uploadPreview").src = oFREvent.target.result;
+											};
+										};
+									</script>
+			  <div class = "wrapper"> <span> Slika: </span> 
+				 <input type="file" name="uploaded" id="uploadImage"  onchange="PreviewImage();" >
+										<!-- Prepreči prevelike slike!							
+				  <img id="uploadPreview" style="max-width: 100px; max-height: 100px;"/> 
+			  </div> -->
+			  <input type="submit" value="Submit">
+			  <input type="reset"> </div>
+		  <!-- <button>Dodaj uporabnika</button> -->
+		  </form>
+		  
+		  <font color={{barva}}>{{napaka}}</font> 
+		  
         </div>
       </article>
       <!--content end-->
