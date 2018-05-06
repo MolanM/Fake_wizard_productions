@@ -40,32 +40,6 @@
       <article id="content">
         <div class="wrapper">
 		
-		  <h2>Uporabniki</h2>
-		  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
-		  <tr>
-			 <th>ID</th>
-			 <th>Uporabnisko ime</th>
-			 <th>Geslo</th>
-			 <!-- <th>Stanje</th> -->
-			 <!-- <th>Ime</th> -->
-			 <!-- <th>Priimek</th> -->
-			 <!-- <th>Rojstni datum</th> -->
-			 <!-- <th>Spol</th> -->
-		  </tr>
-		  %for (id, uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, gru, admin) in uporabniki:
-			<tr>
-			   <td>{{id}}</td>
-			   <td><a href="/user/{{id}}/">{{uporabnisko_ime}}</a></td>
-			   <td>{{geslo}}</td>
-			   <!-- <td>{{stanje}}</td> -->
-			   <!-- <td>{{ime}}</td> -->
-			   <!-- <td>{{priimek}}</td> -->
-			   <!-- <td>{{rojstvo}}</td> -->
-			   <!-- <td>{{spol_uporabnika}}</td> -->
-			</tr>
-		  %end
-		  </table>
-		  
 		 <h2>Contact Form</h2>
           <form id="ContactForm" enctype="text/plain" action="mailto:našmail@mail.com" method="post">
             <div>
@@ -134,7 +108,7 @@
                 <li><a href="/login/">Sign In</a></li>
 				<li><a href="/register/">Register</a></li>
                 <li><a href="/logout/">Log Out</a></li>
-                <li><a href="#">Promotions</a></li>
+                <li><a href="/users/">Find User</a></li>
               </ul>
             </div>
             <div class="phone">

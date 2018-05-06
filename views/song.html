@@ -54,7 +54,15 @@
 			  <span class="color1">Avtorji pesmi: {{seznam_ap}}</span> <br>
 			  <span class="color1">Avtorji besedila: {{seznam_ab}}</span> <br>
 			  <span class="color1">Zanr: {{ime_zanr}}</span> </p>
-			  <span class="color2">Cena: {{cena}}</span>
+			  <span class="color2">Cena: {{cena}}</span> <br>
+			  
+			  %if username is not None and not kupljeno:
+			  <form method="post">
+			  <input type="submit" value="Kupi pesem"> <br>
+			  </form>
+			  %elif username is not None and kupljeno:
+			  <span class="color1">Pesem ste že kupili</span> <br>
+			  %end
 			  
 			  <p>
 			  <h3>Se nahaja v albumih:</h3>
@@ -125,7 +133,7 @@
                 <li><a href="/login/">Sign In</a></li>
 				<li><a href="/register/">Register</a></li>
                 <li><a href="/logout/">Log Out</a></li>
-                <li><a href="#">Promotions</a></li>
+                <li><a href="/users/">Find User</a></li>
               </ul>
             </div>
             <div class="phone">

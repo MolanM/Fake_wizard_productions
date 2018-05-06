@@ -66,38 +66,77 @@
 			  
 			  <p>
 			  %if pesmi:
-				  <h3>Kupljene pesmi</h3>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
+				  <h3>Kupljene pesmi</h3> <input type="submit" onclick="prikaziPesmi()" id="kup_pesmi_but" value="Prikaži"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="kup_pesmi"; style = "display:none">
 				  %for id_pesmi,naslov in pesmi:
 					<tr>
 					   <td><a href="/song/{{id_pesmi}}/" style="text-decoration: none">{{naslov}}</a></td>
 					</tr>
 				  %end
 				  </table>
+				  <script>
+function prikaziPesmi() {
+    var x = document.getElementById("kup_pesmi");
+	var y = document.getElementById("kup_pesmi_but");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+		y.value = "Skrij";
+    } else {
+        x.style.display = "none";
+		y.value = "Prikaži";
+    }
+}
+</script>
 			  %end
 			  </p>
 			  <p>
 			  %if albumi:
-				  <h3>Kupljeni albumi</h3>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
+				  <h3>Kupljeni albumi</h3> <input type="submit" onclick="prikaziAlbumi()" id="kup_albumi_but" value="Prikaži"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="kup_albumi"; style = "display:none">
 				  %for id_albuma,naslov in albumi:
 					<tr>
 					   <td><a href="/album/{{id_albuma}}/" style="text-decoration: none">{{naslov}}</a></td>
 					</tr>
 				  %end
 				  </table>
+				  <script>
+function prikaziAlbumi() {
+    var x = document.getElementById("kup_albumi");
+	var y = document.getElementById("kup_albumi_but");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+		y.value = "Skrij";
+    } else {
+        x.style.display = "none";
+		y.value = "Prikaži";
+    }
+}
+</script>
 			  %end
 			  </p>
 			  <p>
 			  %if dogodki:
-				  <h3>Udelezeni dogodki</h3>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
+				  <h3>Udelezeni dogodki</h3> <input type="submit" onclick="prikaziDogodki()" id="kup_dogodki_but" value="Prikaži"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="kup_dogodki"; style = "display:none">
 				  %for id_dogodka,naslov in dogodki:
 					<tr>
 					   <td><a href="/event/{{id_dogodka}}/" style="text-decoration: none">{{naslov}}</a></td>
 					</tr>
 				  %end
 				  </table>
+				  <script>
+function prikaziDogodki() {
+    var x = document.getElementById("kup_dogodki");
+	var y = document.getElementById("kup_dogodki_but");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+		y.value = "Skrij";
+    } else {
+        x.style.display = "none";
+		y.value = "Prikaži";
+    }
+}
+</script>
 			  %end
 			  </p>
             <!-- <div class="cols marg_right1">
@@ -158,7 +197,7 @@
                 <li><a href="/login/">Sign In</a></li>
 				<li><a href="/register/">Register</a></li>
                 <li><a href="/logout/">Log Out</a></li>
-                <li><a href="#">Promotions</a></li>
+                <li><a href="/users/">Find User</a></li>
               </ul>
             </div>
             <div class="phone">

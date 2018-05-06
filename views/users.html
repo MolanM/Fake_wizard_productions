@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>nightclub | Parties</title>
+<title>nightclub | Contacts</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="all">
 <link rel="stylesheet" href="/static/css/layout.css" type="text/css" media="all">
@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="css/ie.css" type="text/css" media="all">
 <![endif]-->
 </head>
-<body id="page2">
+<body id="page6">
 <div class="bg1">
   <div class="main">
     <!--header -->
@@ -25,7 +25,7 @@
       <nav>
         <ul id="menu">
           <li><a href="/index/">Club</a></li>
-          <li class="active"><a href="/parties/">Parties</a></li>
+          <li><a href="/parties/">Parties</a></li>
           <li><a href="/gallery/">Gallery</a></li>
           <li><a href="/clani/">Residents</a></li>
           <li><a href="/news/">News</a></li>
@@ -39,21 +39,52 @@
       <!--content -->
       <article id="content">
         <div class="wrapper">
-          <h2>Upcoming Parties</h2>
-          <div class="wrapper">
-            <div class="cols marg_right1">
-              <figure class="pad_bot1"><a href="#"><img src="/static/images/page2_img1.jpg" alt=""></a></figure>
-              <figure><a href="#"><img src="/static/images/page2_img2.jpg" alt=""></a></figure>
-            </div>
-            <div class="cols marg_right1">
-              <figure class="pad_bot1"><a href="#"><img src="/static/images/page2_img3.jpg" alt=""></a></figure>
-              <figure><a href="#"><img src="/static/images/page2_img4.jpg" alt=""></a></figure>
-            </div>
-            <div class="cols">
-              <figure class="pad_bot1"><a href="#"><img src="/static/images/page2_img5.jpg" alt=""></a></figure>
-              <figure><a href="#"><img src="/static/images/page2_img6.jpg" alt=""></a></figure>
-            </div>
-          </div>
+		
+		  <h2>Poišči uporabnika</h2>						
+					<form action=".">
+						
+							<div class ="row">
+								<div class="shopper-info col-sm-12"> 
+									<input type="text" name ="search" placeholder="Search"/
+									%try:
+									%if query['search'] != '':
+										value = {{query['search']}}
+									%end
+									%except:
+										%pass
+									%end
+									>
+								</div>
+                            </div>
+							<button type="submit" class="btn btn-default">Filter</button>
+                    </form><!--/brands_products-->
+		  
+		  <h2>Uporabniki</h2>
+		  <table cellpadding="0" cellspacing="0"; border=1;>
+		  <!-- <tr> -->
+			 <!-- <th>ID</th> -->
+			 <!-- <th>Uporabnisko ime</th> -->
+			 <!-- <th>Geslo</th> -->
+			 <!-- <th>Stanje</th> -->
+			 <!-- <th>Ime</th> -->
+			 <!-- <th>Priimek</th> -->
+			 <!-- <th>Rojstni datum</th> -->
+			 <!-- <th>Spol</th> -->
+		  <!-- </tr> -->
+		  %for (id, uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, gru, admin) in uporabniki:
+			<tr>
+			   <!-- <td>{{id}}</td> -->
+			   <td><a href="/user/{{id}}/">{{uporabnisko_ime}}</a></td>
+			   <!-- <td>{{geslo}}</td> -->
+			   <!-- <td>{{stanje}}</td> -->
+			   <!-- <td>{{ime}}</td> -->
+			   <!-- <td>{{priimek}}</td> -->
+			   <!-- <td>{{rojstvo}}</td> -->
+			   <!-- <td>{{spol_uporabnika}}</td> -->
+			</tr>
+		  %end
+		  </table>
+		  
         </div>
       </article>
       <!--content end-->

@@ -52,7 +52,16 @@
 			  <span class="color1">Skupna dolzina: {{m_dolzina}} min {{s_dolzina}} sec</span> <br>
 			  <span class="color1">Zanri: {{seznam_zanrov}}</span> <br>
 			  <span class="color1">Opis: {{opis}}</span> </p>
-			  <span class="color2">Cena: {{cena}}</span> 
+			  <span class="color2">Cena: {{cena}}</span> <br>
+			  
+			  %if username is not None and not kupljeno:
+			  <form method="post">
+			  <input type="submit" value="Kupi album"> <br>
+			  </form>
+			  %elif username is not None and kupljeno:
+			  <span class="color1">Album ste že kupili</span> <br>
+			  %end
+			  
 			  
 			  <p>
 			  <h3>Vsebuje pesmi</h3>
@@ -122,7 +131,7 @@
                 <li><a href="/login/">Sign In</a></li>
 				<li><a href="/register/">Register</a></li>
                 <li><a href="/logout/">Log Out</a></li>
-                <li><a href="#">Promotions</a></li>
+                <li><a href="/users/">Find User</a></li>
               </ul>
             </div>
             <div class="phone">

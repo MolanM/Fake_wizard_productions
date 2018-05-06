@@ -34,7 +34,7 @@ def get_user(auto_login = False):
     username = request.get_cookie('username', secret=secret)
     # Preverimo, ali ta uporabnik obstaja
     if username is not None:
-        cur.execute("SELECT uporabnisko_ime, ime FROM uporabnik WHERE uporabnisko_ime=%s",
+        cur.execute("SELECT uporabnisko_ime, ime, id FROM uporabnik WHERE uporabnisko_ime=%s",
                   [username])
         r = cur.fetchone()
         if r is not None:
@@ -68,7 +68,7 @@ def index():
 @get('/index/')
 def index():
     if get_user():
-        (username_login, ime_login) = get_user()
+        (username_login, ime_login, id_user) = get_user()
     else:
         username_login = "Stranger"
     return template('index.html', prijavljen_uporabnik=username_login)
@@ -76,6 +76,10 @@ def index():
 @get('/news/')
 def index():
     return template('news.html')
+
+@get('/contacts/')
+def index():
+    return template('contacts.html')
 
 @get('/parties/')
 def index():
@@ -89,7 +93,7 @@ def index():
 @get('/login/')
 def index():
     if get_user():
-        (username_login, ime_login) = get_user()
+        (username_login, ime_login, id_user) = get_user()
         return template('login.html', napaka="Ste že prijavljeni!", barva="red", prijavljen_uporabnik=username_login)
     else:
         return template('login.html', napaka="Vse OK", barva="green", prijavljen_uporabnik=None)
@@ -125,15 +129,27 @@ def login_post():
                                    napaka="Nepravilna prijava", barva="red",
                                    username=username, prijavljen_uporabnik=None)
 
-@route('/contacts/')
+@get('/users/')
 def uporabnik():
-    cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-    return template('contacts.html', x=0, napaka = "Vse OK", uporabniki=cur)
+    query = dict(request.query)
+    ORstring='''
+        SELECT * FROM uporabnik
+        WHERE 1=1\n'''
+    parameters = [] #vektor parametrov za sql stavke
+    try: test = query['search']
+    except: query['search'] = ''
+    if query['search'] != '':
+        ORstring += '''AND (LOWER(uporabnisko_ime) LIKE LOWER(%s) )'''
+        parameters = parameters + ['%'+query['search']+'%']
+        print('%'+query['search']+'%')
+    ORstring += '''ORDER BY uporabnisko_ime'''
+    cur.execute(ORstring,parameters)
+    return template('users.html', x=0, napaka = "Vse OK", uporabniki=cur.fetchall())
 
 @post('/register/')
 def uporabnik():
     x = 0
-    cur.execute("SELECT * FROM uporabnik WHERE stanje > %s ORDER BY stanje, id", [int(x)])
+    cur.execute("SELECT * FROM uporabnik WHERE stanje > %s ORDER BY uporabnisko_ime, stanje", [int(x)])
     #spremenljivko smo shranili v znesek
     UporabniskoIme = request.forms.uporabniskoime
     Geslo1 = request.forms.geslo1
@@ -203,6 +219,13 @@ def user(id):
 def user(id):
     """Prikaži stran uporabnika"""
     # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT id,naslov FROM pesem JOIN kupil_pesem ON pesem.id = kupil_pesem.pesemid WHERE uporabnikid = %s AND pesemid = %s", [int(id_user), int(id)])
+        ze_kupljeno = cur.fetchone()
+    else:
+        username_login = None
+        ze_kupljeno = False
     cur.execute("SELECT * FROM pesem WHERE id = %s", [int(id)])
     Pesem = cur.fetchone()
     (id, naslov, dolzina, izdan, zanr, cena) = Pesem
@@ -219,12 +242,32 @@ def user(id):
     # Prikažemo predlogo
     cur.execute("SELECT album.id, album.naslov FROM album_pesem JOIN album ON album_pesem.albumid = album.id WHERE pesemid = %s", [int(id)])
     Albumi = cur.fetchall()
-    return template("song.html", pesem=Pesem, zanr=Zanr, avtorji_pesmi = Avtorji_p, avtorji_besedila = Avtorji_b, albumi=Albumi)
+    return template("song.html", pesem=Pesem, zanr=Zanr, avtorji_pesmi = Avtorji_p, avtorji_besedila = Avtorji_b, albumi=Albumi, username=username_login, kupljeno = ze_kupljeno)
+
+@post("/song/<id>/")
+def user(id):
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT id,naslov FROM pesem JOIN kupil_pesem ON pesem.id = kupil_pesem.pesemid WHERE uporabnikid = %s AND pesemid = %s", [int(id_user), int(id)])
+        ze_kupljeno = cur.fetchone()
+        if not ze_kupljeno:
+            cur.execute("SELECT cena FROM pesem WHERE id = %s", [int(id)])
+            (cena,)=cur.fetchone()
+            cur.execute("UPDATE uporabnik SET stanje = stanje - %s WHERE id = %s", [int(cena), id_user])
+            cur.execute("INSERT INTO kupil_pesem (pesemid, uporabnikid) VALUES (%s, %s)", [id, id_user])
+            redirect('/song/'+str(id)+'/')
 
 @route("/album/<id>/")
 def user(id):
     """Prikaži stran uporabnika"""
     # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT id,naslov FROM album JOIN kupil_album ON album.id = kupil_album.albumid WHERE uporabnikid = %s AND albumid = %s", [int(id_user), int(id)])
+        ze_kupljeno = cur.fetchone()
+    else:
+        username_login = None
+        ze_kupljeno = False
     cur.execute("SELECT * FROM album WHERE id = %s", [int(id)])
     Album = cur.fetchone()
     cur.execute("SELECT SUM(dolzina) FROM album_pesem JOIN pesem ON album_pesem.pesemid = pesem.id WHERE albumid = %s", [int(id)])
@@ -235,7 +278,20 @@ def user(id):
         Zanri.append(naslov)
     cur.execute("SELECT pesem.id, pesem.naslov FROM album_pesem JOIN pesem ON album_pesem.pesemid = pesem.id WHERE albumid = %s", [int(id)])
     Pesmi = cur.fetchall()
-    return template("album.html", album=Album, dolzina=Dolzina, zanri=Zanri, pesmi=Pesmi)
+    return template("album.html", album=Album, dolzina=Dolzina, zanri=Zanri, pesmi=Pesmi, username=username_login, kupljeno=ze_kupljeno)
+
+@post("/album/<id>/")
+def user(id):
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT id,naslov FROM album JOIN kupil_album ON album.id = kupil_album.albumid WHERE uporabnikid = %s AND albumid = %s", [int(id_user), int(id)])
+        ze_kupljeno = cur.fetchone()
+        if not ze_kupljeno:
+            cur.execute("SELECT cena FROM album WHERE id = %s", [int(id)])
+            (cena,)=cur.fetchone()
+            cur.execute("UPDATE uporabnik SET stanje = stanje - %s WHERE id = %s", [int(cena), id_user])
+            cur.execute("INSERT INTO kupil_album (albumid, uporabnikid) VALUES (%s, %s)", [id, id_user])
+            redirect('/album/'+str(id)+'/')
 
 @route("/event/<id>/")
 def user(id):

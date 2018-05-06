@@ -5,8 +5,15 @@ auth.db = "sem2018_nejcc"
 # uvozimo psycopg2
 import psycopg2, psycopg2.extensions, psycopg2.extras
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE) # se znebimo problemov s šumniki
-
+import hashlib # računanje MD5 kriptografski hash za gesla
 import csv
+
+def password_md5(s):
+    """Vrni MD5 hash danega UTF-8 niza. Gesla vedno spravimo v bazo
+       kodirana s to funkcijo."""
+    h = hashlib.md5()
+    h.update(s.encode('utf-8'))
+    return h.hexdigest()
 
 def ustvari_tabelo():
     cur.execute("""
@@ -276,10 +283,10 @@ def uvozi_podatke():
                 INSERT INTO album_pesem(pesemid, albumid) VALUES (3, 2);
                 INSERT INTO album_pesem(pesemid, albumid) VALUES (4, 2);
 
-                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, admin) VALUES ('Mozi111', '123', 999, 'Nejc', 'Černe', to_date('21-09-1996', 'dd-mm-yyyy'), 'moški', true);
-                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Yonstopir', 'Ooteebae4ai', 100, 'Lucy', 'Boyle', to_date('25-10-1996', 'dd-mm-yyyy'), 'ženska');
-                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Thimpturaw', 'Ri8Ueyoo3oT', 225, 'Eve', 'Fletcher', to_date('03-05-1996', 'dd-mm-yyyy'), 'ženska');
-                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Whistless', 'AhC0ahboog', 35, 'Isabella', 'Atkins', to_date('11-11-1996', 'dd-mm-yyyy'), 'ženska');
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, admin) VALUES ('Mozi111',"""+password_md5('123')+""", 999, 'Nejc', 'Černe', to_date('21-09-1996', 'dd-mm-yyyy'), 'moški', true);
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Yonstopir',""" +password_md5('Ooteebae4ai')+""", 100, 'Lucy', 'Boyle', to_date('25-10-1996', 'dd-mm-yyyy'), 'ženska');
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Thimpturaw',""" +password_md5('Ri8Ueyoo3oT')+""", 225, 'Eve', 'Fletcher', to_date('03-05-1996', 'dd-mm-yyyy'), 'ženska');
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Whistless',""" +password_md5('AhC0ahboog')+""", 35, 'Isabella', 'Atkins', to_date('11-11-1996', 'dd-mm-yyyy'), 'ženska');
 
                 INSERT INTO dogodek(naslov, datum, tip) VALUES ('Predstavitveni koncert', to_date('13-06-2018', 'dd-mm-yyyy'), 'koncert');
 
