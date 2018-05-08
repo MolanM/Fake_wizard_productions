@@ -188,7 +188,7 @@ def uporabnik():
         print('%'+query['search']+'%')
     ORstring += '''ORDER BY uporabnisko_ime'''
     cur.execute(ORstring,parameters)
-    return template('uporabniki.html', x=0, napaka = "Vse OK", uporabniki=cur.fetchall())
+    return template('uporabniki.html', x=0, napaka = "Vse OK", uporabniki=cur.fetchall(), iskanje=query['search'])
 
 @post('/register/')
 def uporabnik():
