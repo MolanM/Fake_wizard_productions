@@ -41,24 +41,17 @@
         <div class="wrapper">
           <h2>Night Skupina Člani</h2>
           <div class="wrapper">
-			  <table cellpadding="0" cellspacing="0" border="1" width=100%>
-			  <tr>
-				 <th>Ime</th>
-				 <th>Priimek</th>
-				 <th>Datum rojstva</th>
-				 <th>Naslov</th>
-				 <th>Življenjepis</th>
-			  </tr>
+			  
 			  %for (id,ime,priimek,rojstvo,naslov,bio) in clani:
-				<tr>
-				   <td>{{ime}}</td>
-				   <td>{{priimek}}</td>
-				   <td>{{rojstvo}}</td>
-				   <td>{{naslov}}</td>
-				   <td>{{bio}}</td>
-				</tr>
+			    %datum = rojstvo.strftime("%d %B %Y")
+				<div class="cols">
+              <figure class="pad_bot1"><img src="" alt=""></figure>
+              <p class="pad_bot2"><span class="color2">{{ime}} {{priimek}}</span> <span class="color1">Singer, DJ</span><br>
+			  Datum rojstva: {{datum}}<br>
+			  Živi v: {{naslov}} <br>
+                {{bio}}</p>
+                </div>
 			  %end
-			  </table>
           </div>
         </div>
       </article>

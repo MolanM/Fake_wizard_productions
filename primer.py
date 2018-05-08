@@ -63,8 +63,40 @@ def index():
 
 @get('/dogodki/')
 def index():
-    cur.execute("SELECT * FROM dogodek ORDER BY datum, id")
-    return template('dogodki.html', dogodki=cur)
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT dogodekid FROM udelezba_dogodka WHERE uporabnikid = %s", [int(id_user)])
+        UdelezeniDogodki = cur.fetchall()
+    else:
+        username_login = None
+        UdelezeniDogodki = None
+
+    query = dict(request.query)
+    ORstring='''
+        SELECT * FROM dogodek
+        WHERE 1=1\n'''
+    parameters = [] #vektor parametrov za sql stavke
+    try: test = query['search']
+    except: query['search'] = ''
+    try: test = query['spodnji']
+    except: query['spodnji'] = ''
+    try: test = query['zgornji']
+    except: query['zgornji'] = ''
+    if query['search'] != '':
+        ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
+        parameters = parameters + ['%'+query['search']+'%']
+        print('%'+query['search']+'%')
+    if query['spodnji'] != '':
+        ORstring += '''AND (datum >= to_date(%s, 'yyyy-mm-dd') )'''
+        parameters = parameters + [query['spodnji']]
+    if query['zgornji'] != '':
+        ORstring += '''AND (datum <= to_date(%s, 'yyyy-mm-dd') )'''
+        parameters = parameters + [query['zgornji']]
+    ORstring += '''ORDER BY datum'''
+    cur.execute(ORstring,parameters)
+
+    Dogodki=cur.fetchall()
+    return template('dogodki.html', username=username_login, dogodki=Dogodki, udelezeni=UdelezeniDogodki, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'])
 
 @get('/galerija/')
 def index():
@@ -74,15 +106,20 @@ def index():
 def index():
     if get_user():
         (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT dogodekid FROM udelezba_dogodka WHERE uporabnikid = %s", [int(id_user)])
+        UdelezeniDogodki = cur.fetchall()
     else:
-        username_login = "tujec"
+        username_login = None
+        UdelezeniDogodki = None
 	
     """ Preberemo zadnje dogodke
     """
-    cur.execute("SELECT * FROM dogodek WHERE datum <= now()::date ORDER BY datum DESC, id DESC LIMIT 5")
-    cur1.execute("SELECT * FROM dogodek WHERE datum > now()::date ORDER BY datum ASC, id DESC LIMIT 5")
+    cur.execute("SELECT * FROM dogodek WHERE datum <= now()::date ORDER BY datum DESC, id DESC LIMIT 2")
+    Dogodki1 = cur.fetchall()
+    cur.execute("SELECT * FROM dogodek WHERE datum > now()::date ORDER BY datum ASC, id DESC LIMIT 3")
+    Dogodki2 = cur.fetchall()
     
-    return template('index.html', prijavljen_uporabnik=username_login, dogodki=cur, prihajajoci=cur1)
+    return template('index.html', prijavljen_uporabnik=username_login, dogodki=Dogodki1, prihajajoci=Dogodki2, udelezeni=UdelezeniDogodki)
 
 @get('/novice/')
 def index():
@@ -304,11 +341,28 @@ def user(id):
 def user(id):
     """Prikaži stran uporabnika"""
     # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT id,naslov FROM dogodek JOIN udelezba_dogodka ON dogodek.id = udelezba_dogodka.dogodekid WHERE uporabnikid = %s AND dogodekid = %s", [int(id_user), int(id)])
+        udelezeno = cur.fetchone()
+    else:
+        username_login = None
+        udelezeno = False
     cur.execute("SELECT * FROM dogodek WHERE id = %s", [int(id)])
     Dogodek = cur.fetchone()
     cur.execute('SELECT pesem.id, pesem.naslov FROM izvedene_pesmi JOIN pesem ON izvedene_pesmi.pesemid = pesem.id WHERE dogodekid = 1', [int(id)])
     Pesmi = cur.fetchall()
-    return template("dogodek.html", dogodek=Dogodek, pesmi=Pesmi)
+    return template("dogodek.html", dogodek=Dogodek, pesmi=Pesmi, username = username_login, udelezeno=udelezeno)
+
+@post("/dogodek/<id>/")
+def user(id):
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT id,naslov FROM dogodek JOIN udelezba_dogodka ON dogodek.id = udelezba_dogodka.dogodekid WHERE uporabnikid = %s AND dogodekid = %s", [int(id_user), int(id)])
+        udelezeno = cur.fetchone()
+        if not udelezeno:
+            cur.execute("INSERT INTO udelezba_dogodka (dogodekid, uporabnikid) VALUES (%s, %s)", [id, id_user])
+            redirect('/dogodek/'+str(id)+'/')
 
 @post("/user/<id>/")
 def user(id):
@@ -352,8 +406,6 @@ def user(id):
 conn = psycopg2.connect(database=auth.db, host=auth.host, user=auth.user, password=auth.password)
 conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) # onemogočimo transakcije
 cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-# dodatne transakcije (novi kurzor)
-cur1 = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 # poženemo strežnik na portu 8080, glej http://localhost:8080/
 run(host='localhost', port=8080)

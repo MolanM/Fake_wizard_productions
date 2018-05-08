@@ -39,6 +39,24 @@
       <!--content -->
       <article id="content">
         <div class="wrapper">
+		   <h2>Poišči dogodek</h2>	
+            <form id = "ContactForm" action=".">
+			<div>
+			  <div class="wrapper"> <span> Ključne besede: </span>
+									<input type="text" name ="search" placeholder="Vnesi"
+									value = "{{iskanje}}" />
+								</div>
+			  <div class = "wrapper"> <span> Po: </span> 
+				<input placeholder="Vnesi rojstni datum" value = "{{sp_datum}}" type="date" name="spodnji"
+				/> 
+			  </div>
+			  <div class = "wrapper"> <span> Pred: </span> 
+				<input placeholder="Vnesi rojstni datum" type="date" name="zgornji"
+				value = "{{zg_datum}}"/> 
+			  </div>
+			  <button type="submit" class="btn btn-default">Filter</button>
+		  </form>		   
+		
           <h2>Dogodki skupine</h2>
           <div class="wrapper">
 			  <table cellpadding="0" cellspacing="0" border="1" width=100%>
@@ -49,9 +67,10 @@
 				 <th>Vrsta dogodka</th>
 			  </tr>
 			  </thead>
-			  %for (ID,naslov,datum,tip) in dogodki:
+			  %for (id_dogodka,naslov,datum,tip) in dogodki:
+			    %datum = datum.strftime("%d %B %Y")
 				<tr>
-				   <td>{{naslov}}</td>
+				   <td><a href="/dogodek/{{id_dogodka}}/" style="text-decoration: none">{{naslov}}</a></td>
 				   <td>{{datum}}</td>
 				   <td>{{tip}}</td>
 				</tr>
