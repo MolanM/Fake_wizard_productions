@@ -40,54 +40,23 @@
       <article id="content">
         <div class="wrapper">
 		
-		  <h2>Registriraj novega uporabnika</h2>
+		  %if not prijavljen_uporabnik:
+		  <h2>Prijava</h2>
 		  <form id = "ContactForm" method="post" enctype="multipart/form-data">
 			<div>
 			  <div class = "wrapper"> <span> Uporabnisko ime: </span>
-			  <!-- TODO: prepreči posebne znake in presledke-->
 				<input placeholder="Vnesi uporabnisko ime" type="text" name="uporabniskoime"/> 
 			  </div>
 			  <div class = "wrapper"> <span> Geslo: </span> 
-				<input placeholder="Vnesi geslo" type="password" name="geslo1"/>
+				<input placeholder="Vnesi geslo" type="password" name="geslo"/>
 			  </div>
-			  <div class = "wrapper"> <span> Ponovi geslo: </span> 
-				<input placeholder="Ponovno vnesi geslo" type="password" name="geslo2"/>
-			  </div>
-			  <div class = "wrapper"> <span> Stanje: </span> 
-				<input placeholder="Vnesi stanje" type="number" name="stanje"/> 
-			  </div>
-			  <div class = "wrapper"> <span> Ime: </span> 
-				<input placeholder="Vnesi ime" name="ime"/> 
-			  </div>
-			  <div class = "wrapper"> <span> Priimek: </span> 
-				<input placeholder="Vnesi priimek" name="priimek"/> 
-			  </div>
-			  <div class = "wrapper"> <span> Rojstvo: </span> 
-				<input placeholder="Vnesi rojstni datum" type="date" name="rojstvo"/> 
-			  </div>
-			  <div class = "wrapper"> <span> Spol: </span>  <select name="spol">
-					  <option value="moški">moški</option>
-					  <option value="ženska">ženska</option>
-					  <option value="drugo" selected="selected">drugo</option>
-					 </select> </div>
-              <!-- <script type="text/javascript">
-										function PreviewImage() {
-											var oFReader = new FileReader();
-											oFReader.readAsDataURL(document.getElementById("uploadImage").files[0]);
-											oFReader.onload = function (oFREvent) {
-												document.getElementById("uploadPreview").src = oFREvent.target.result;
-											};
-										};
-									</script>
-			  <div class = "wrapper"> <span> Slika: </span> 
-				 <input type="file" name="uploaded" id="uploadImage"  onchange="PreviewImage();" >
-										<!-- Prepreči prevelike slike!							
-				  <img id="uploadPreview" style="max-width: 100px; max-height: 100px;"/> 
-			  </div> -->
-			  <input type="submit" value="Submit">
+			  <input type="submit" value="Prijava">
 			  <input type="reset"> </div>
 		  <!-- <button>Dodaj uporabnika</button> -->
 		  </form>
+		  %else:
+		  <h2>Pozdravljeni {{prijavljen_uporabnik}}!</h2>
+		  %end
 		  
 		  <font color={{barva}}>{{napaka}}</font> 
 		  

@@ -27,7 +27,7 @@
           <li><a href="/index/">Skupina</a></li>
           <li><a href="/dogodki/">Dogodki</a></li>
           <li><a href="/galerija/">Galerija</a></li>
-          <li class="active"><a href="/clani/">Člani</a></li>
+          <li><a href="/clani/">Člani</a></li>
           <li><a href="/novice/">Novice</a></li>
           <li><a href="/kontakt/">Kontakt</a></li>
         </ul>
@@ -39,26 +39,27 @@
       <!--content -->
       <article id="content">
         <div class="wrapper">
-          <h2>Night Skupina Člani</h2>
+		%import datetime
+		%(id, naslov, datum, tip) = dogodek
+		%datum = datum.strftime("%d %B %Y")
+		%#m_dolzina, s_dolzina = divmod(dolzina.seconds, 60)
+		%#(ime_zanr,)=zanr
+          <h2>{{naslov}}</h2> 
           <div class="wrapper">
-			  <table cellpadding="0" cellspacing="0" border="1" width=100%>
-			  <tr>
-				 <th>Ime</th>
-				 <th>Priimek</th>
-				 <th>Datum rojstva</th>
-				 <th>Naslov</th>
-				 <th>Življenjepis</th>
-			  </tr>
-			  %for (id,ime,priimek,rojstvo,naslov,bio) in clani:
-				<tr>
-				   <td>{{ime}}</td>
-				   <td>{{priimek}}</td>
-				   <td>{{rojstvo}}</td>
-				   <td>{{naslov}}</td>
-				   <td>{{bio}}</td>
-				</tr>
+			  <p class="pad_bot2">
+			  <span class="color1">Datum: {{datum}}</span> <br>
+			  <span class="color1">Tip: {{tip}}</span> </p>
+			  
+			  %if pesmi:
+			  <h3>Izvedene pesmi</h3>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
+				  %for (id_pesmi,naslov,) in pesmi:
+					<tr>
+					   <td><a href="/song/{{id_pesmi}}/" style="text-decoration: none">{{naslov}}</a></td>
+					</tr>
+				  %end
+				  </table>
 			  %end
-			  </table>
           </div>
         </div>
       </article>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Ponarejevalci denarja | Člani</title>
+<title>Ponarejevalci denarja | Dogodki</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="all">
 <link rel="stylesheet" href="/static/css/layout.css" type="text/css" media="all">
@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="css/ie.css" type="text/css" media="all">
 <![endif]-->
 </head>
-<body id="page4">
+<body id="page2">
 <div class="bg1">
   <div class="main">
     <!--header -->
@@ -25,9 +25,9 @@
       <nav>
         <ul id="menu">
           <li><a href="/index/">Skupina</a></li>
-          <li><a href="/dogodki/">Dogodki</a></li>
+          <li class="active"><a href="/dogodki/">Dogodki</a></li>
           <li><a href="/galerija/">Galerija</a></li>
-          <li class="active"><a href="/clani/">Člani</a></li>
+          <li><a href="/clani/">Člani</a></li>
           <li><a href="/novice/">Novice</a></li>
           <li><a href="/kontakt/">Kontakt</a></li>
         </ul>
@@ -39,23 +39,21 @@
       <!--content -->
       <article id="content">
         <div class="wrapper">
-          <h2>Night Skupina Člani</h2>
+          <h2>Dogodki skupine</h2>
           <div class="wrapper">
 			  <table cellpadding="0" cellspacing="0" border="1" width=100%>
+			  <thead>
 			  <tr>
-				 <th>Ime</th>
-				 <th>Priimek</th>
-				 <th>Datum rojstva</th>
 				 <th>Naslov</th>
-				 <th>Življenjepis</th>
+				 <th>Datum</th>
+				 <th>Vrsta dogodka</th>
 			  </tr>
-			  %for (id,ime,priimek,rojstvo,naslov,bio) in clani:
+			  </thead>
+			  %for (ID,naslov,datum,tip) in dogodki:
 				<tr>
-				   <td>{{ime}}</td>
-				   <td>{{priimek}}</td>
-				   <td>{{rojstvo}}</td>
 				   <td>{{naslov}}</td>
-				   <td>{{bio}}</td>
+				   <td>{{datum}}</td>
+				   <td>{{tip}}</td>
 				</tr>
 			  %end
 			  </table>

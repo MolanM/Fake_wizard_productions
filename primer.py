@@ -42,7 +42,7 @@ def get_user(auto_login = False):
             return r
     # Če pridemo do sem, uporabnik ni prijavljen, naredimo redirect
     if auto_login:
-        redirect('/login/')
+        redirect('/prijava/')
     else:
         return None
 
@@ -59,44 +59,51 @@ def static(filename):
 @get('/clani/')
 def index():
     cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
-    return template('residents.html', clani=cur)
+    return template('clani.html', clani=cur)
 
-@get('/gallery/')
+@get('/dogodki/')
 def index():
-    return template('gallery.html')
+    cur.execute("SELECT * FROM dogodek ORDER BY datum, id")
+    return template('dogodki.html', dogodki=cur)
+
+@get('/galerija/')
+def index():
+    return template('galerija.html')
 
 @get('/index/')
 def index():
     if get_user():
         (username_login, ime_login, id_user) = get_user()
     else:
-        username_login = "Stranger"
-    return template('index.html', prijavljen_uporabnik=username_login)
+        username_login = "tujec"
+	
+    """ Preberemo zadnje dogodke
+    """
+    cur.execute("SELECT * FROM dogodek WHERE datum <= now()::date ORDER BY datum DESC, id DESC LIMIT 5")
+    cur1.execute("SELECT * FROM dogodek WHERE datum > now()::date ORDER BY datum ASC, id DESC LIMIT 5")
+    
+    return template('index.html', prijavljen_uporabnik=username_login, dogodki=cur, prihajajoci=cur1)
 
-@get('/news/')
+@get('/novice/')
 def index():
-    return template('news.html')
+    return template('novice.html')
 
-@get('/contacts/')
+@get('/kontakt/')
 def index():
-    return template('contacts.html')
-
-@get('/parties/')
-def index():
-    return template('parties.html')
+    return template('kontakt.html')
 
 @get('/register/')
 def index():
     cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
     return template('register.html', napaka="Vse OK", barva="green", clani=cur)
 
-@get('/login/')
+@get('/prijava/')
 def index():
     if get_user():
         (username_login, ime_login, id_user) = get_user()
-        return template('login.html', napaka="Ste že prijavljeni!", barva="red", prijavljen_uporabnik=username_login)
+        return template('prijava.html', napaka="Ste že prijavljeni!", barva="red", prijavljen_uporabnik=username_login)
     else:
-        return template('login.html', napaka="Vse OK", barva="green", prijavljen_uporabnik=None)
+        return template('prijava.html', napaka="Vse OK", barva="green", prijavljen_uporabnik=None)
 
 @get("/logout/")
 def logout():
@@ -104,7 +111,7 @@ def logout():
     response.delete_cookie('username', path='/', domain='localhost')
     redirect('/')
 
-@post("/login/")
+@post("/prijava/")
 def login_post():
     """Obdelaj izpolnjeno formo za prijavo"""
     # Uporabniško ime, ki ga je uporabnik vpisal v formo
@@ -117,7 +124,7 @@ def login_post():
                   [username, password])
         if cur.fetchone() is None:
             # Username in geslo se ne ujemata
-            return template("login.html",
+            return template("prijava.html",
                                    napaka="Uporabniško ime in geslo se ne ujemata", barva="red",
                                    username=username, prijavljen_uporabnik=None)
         else:
@@ -125,11 +132,11 @@ def login_post():
             response.set_cookie('username', username, path='/', secret=secret)
             redirect("/")
     else:
-        return template("login.html",
+        return template("prijava.html",
                                    napaka="Nepravilna prijava", barva="red",
                                    username=username, prijavljen_uporabnik=None)
 
-@get('/users/')
+@get('/uporabniki/')
 def uporabnik():
     query = dict(request.query)
     ORstring='''
@@ -144,7 +151,7 @@ def uporabnik():
         print('%'+query['search']+'%')
     ORstring += '''ORDER BY uporabnisko_ime'''
     cur.execute(ORstring,parameters)
-    return template('users.html', x=0, napaka = "Vse OK", uporabniki=cur.fetchall())
+    return template('uporabniki.html', x=0, napaka = "Vse OK", uporabniki=cur.fetchall())
 
 @post('/register/')
 def uporabnik():
@@ -213,7 +220,7 @@ def user(id):
     cur.execute("SELECT id,naslov FROM dogodek JOIN udelezba_dogodka ON dogodek.id = udelezba_dogodka.dogodekid WHERE uporabnikid = %s", [int(id)])
     UdelezeniDogodki = cur.fetchall()
     # Prikažemo predlogo
-    return template("user.html", uporabnik=Uporabnik, pesmi=KupljenePesmi, albumi=KupljeniAlbumi, dogodki=UdelezeniDogodki)
+    return template("član.html", uporabnik=Uporabnik, pesmi=KupljenePesmi, albumi=KupljeniAlbumi, dogodki=UdelezeniDogodki)
 
 @route("/song/<id>/")
 def user(id):
@@ -293,7 +300,7 @@ def user(id):
             cur.execute("INSERT INTO kupil_album (albumid, uporabnikid) VALUES (%s, %s)", [id, id_user])
             redirect('/album/'+str(id)+'/')
 
-@route("/event/<id>/")
+@route("/dogodek/<id>/")
 def user(id):
     """Prikaži stran uporabnika"""
     # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
@@ -301,7 +308,7 @@ def user(id):
     Dogodek = cur.fetchone()
     cur.execute('SELECT pesem.id, pesem.naslov FROM izvedene_pesmi JOIN pesem ON izvedene_pesmi.pesemid = pesem.id WHERE dogodekid = 1', [int(id)])
     Pesmi = cur.fetchall()
-    return template("event.html", dogodek=Dogodek, pesmi=Pesmi)
+    return template("dogodek.html", dogodek=Dogodek, pesmi=Pesmi)
 
 @post("/user/<id>/")
 def user(id):
@@ -344,7 +351,9 @@ def user(id):
 # priklopimo se na bazo
 conn = psycopg2.connect(database=auth.db, host=auth.host, user=auth.user, password=auth.password)
 conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) # onemogočimo transakcije
-cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor) 
+cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+# dodatne transakcije (novi kurzor)
+cur1 = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 # poženemo strežnik na portu 8080, glej http://localhost:8080/
 run(host='localhost', port=8080)

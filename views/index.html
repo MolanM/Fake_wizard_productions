@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>nightclub</title>
+<title>Ponarejevalci denarja</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="all">
 <link rel="stylesheet" href="/static/css/layout.css" type="text/css" media="all">
@@ -27,15 +27,15 @@
     <header>
       <nav>
         <ul id="menu">
-          <li class="active"><a href="/index/">Club</a></li>
-          <li><a href="/parties/">Parties</a></li>
-          <li><a href="/gallery/">Gallery</a></li>
-          <li><a href="/clani/">Residents</a></li>
-          <li><a href="/news/">News</a></li>
-          <li><a href="/contacts/">Contacts</a></li>
+          <li class="active"><a href="/index/">Skupina</a></li>
+          <li><a href="/dogodki/">Dogodki</a></li>
+          <li><a href="/galerija/">Galerija</a></li>
+          <li><a href="/clani/">Člani</a></li>
+          <li><a href="/novice/">Novice</a></li>
+          <li><a href="/kontakt/">Kontakt</a></li>
         </ul>
       </nav>
-      <h1><a href="/index/" id="logo">nightclub feel the rhythm</a></h1>
+      <h1><a href="/index/" id="logo">Ponarejevalci denarja feel the rhythm</a></h1>
     </header>
     <!--header end-->
     <div class="box">
@@ -43,83 +43,58 @@
       <article id="content">
         <div class="wrapper pad_bot1">
           <section class="col1">
-            <h2 id="welcom">Hello {{prijavljen_uporabnik}}!</h2>
-            <p class="color1">Night Club is one of free website templates created by TemplateMonster.com team. This website template is optimized for 1024X768 screen resolution. It is also XHTML &amp; CSS valid.</p>
-            <p class="pad_bot1">This Night Club Template goes with two packages – with PSD source files and without them. PSD source files are available for free for the registered members of Templates.com. The basic package (without PSD source) is available for anyone without registration.</p>
-            <a href="#" class="link1">Read More</a> </section>
+            <h2 id="welcom">Pozdravljen {{prijavljen_uporabnik}}!</h2>
+            <p class="color1">Glasbena skupina Ponarejevalci denarja je najperspektivnejša glasbena skupina v tem delu Evrope.</p>
+            <p class="pad_bot1">Skupina je v nastajanju in temelji na formalni predpostavki o možnosti, da je mogoče preseči nepredstavljive meje popularnosti. Slog in umetniška vrednost skupine presegata vsa pričakovanja.</p>
+            <a href="https://www.google.com/search?client=firefox-b&ei=D4rwWrKfI8G8kwXbu6hI&q=Glasbena+skupina+Ponarejevalci+denarja&oq=Glasbena+skupina+Ponarejevalci+denarja&gs_l=psy-ab.3...7274.14390.0.14914.29.23.6.0.0.0.190.2330.16j6.22.0....0...1c.1.64.psy-ab..5.1.110...0i13i30k1j0i7i5i30k1.0.EcTkr5Bu7H0" class="link1">Preberi več</a> </section>
           <section class="col1 pad_left1">
-            <h2>Latest Events</h2>
-            <div id="gallery1">
-              <ul>
-                <li> <span class="dropcap_1">30<span>august</span></span>
-                  <p><span class="color1">Lorem ipsum dolor sit amet</span><br>
-                    adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.<br>
-                    <a href="#" class="link1">View Details</a></p>
-                </li>
-                <li> <span class="dropcap_1">26<span>august</span></span>
-                  <p><span class="color1">Ut enim ad minim veniam nostrud</span><br>
-                    Exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. <br>
-                    <a href="#" class="link1">View Details</a></p>
-                </li>
-              </ul>
-            </div>
-            <a href="#" class="next"></a> <a href="#" class="prev"></a> </section>
+            <h2>Zadnji dogodki</h2>
+          <div class="wrapper">
+			  <table cellpadding="0" cellspacing="0" border="1" width=100%>
+			  <thead>
+			  <tr>
+				 <th>Naslov</th>
+				 <th>Datum</th>
+				 <th>Vrsta dogodka</th>
+			  </tr>
+			  </thead>
+			  %for (ID,naslov,datum,tip) in dogodki:
+				<tr>
+				   <td>{{naslov}}</td>
+				   <td>{{datum}}</td>
+				   <td>{{tip}}</td>
+				</tr>
+			  %end
+			  </table>
+          </div>
+		</section>
         </div>
         <div class="wrapper">
-          <h2>Next Party</h2>
+          <h2>Prihajajoči dogodki</h2>
           <div class="wrapper">
-            <figure class="left marg_right1"><a href="#"><img src="/static/images/banner1.jpg" alt=""></a></figure>
-            <h3>Best RNB from Europe</h3>
-            <p class="pad_bot1">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo:</p>
-            <ul class="list1 pad_bot1">
-              <li><a href="#">Ut enim ad minima veniam, quis nostrum exercitationem ullam</a></li>
-              <li><a href="#">Quis autem vel eum iure reprehenderit qui in voluptate</a></li>
-              <li><a href="#">Velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum</a></li>
-              <li><a href="#">Fugiat quo voluptas nulla pariatur lorem ipsum dolor sit amet</a></li>
-            </ul>
-            <p>Inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate voluptatem quia voluptas sit aspernatur.</p>
+			  <table cellpadding="0" cellspacing="0" border="1" width=100%>
+			  <thead>
+			  <tr>
+				 <th>Naslov</th>
+				 <th>Datum</th>
+				 <th>Vrsta dogodka</th>
+			  </tr>
+			  </thead>
+			  %for (ID,naslov,datum,tip) in prihajajoci:
+				<tr>
+				   <td>{{naslov}}</td>
+				   <td>{{datum}}</td>
+				   <td>{{tip}}</td>
+				</tr>
+			  %end
+			  </table>
           </div>
         </div>
       </article>
       <!--content end-->
       <!--footer -->
       <footer>
-        <div class="line1">
-          <div class="line2 wrapper">
-            <div class="icons">
-              <h4>Connect With Us</h4>
-              <ul id="icons">
-                <li><a href="#" class="normaltip"><img src="/static/images/icon1.jpg" alt=""></a></li>
-                <li><a href="#" class="normaltip"><img src="/static/images/icon2.jpg" alt=""></a></li>
-                <li><a href="#" class="normaltip"><img src="/static/images/icon3.jpg" alt=""></a></li>
-                <li><a href="#" class="normaltip"><img src="/static/images/icon4.jpg" alt=""></a></li>
-                <li><a href="#" class="normaltip"><img src="/static/images/icon5.jpg" alt=""></a></li>
-              </ul>
-              <!-- {%FOOTER_LINK} -->
-            </div>
-            <div class="info">
-              <h4>About Us</h4>
-              <ul>
-                <li><a href="#">Club Info</a></li>
-                <li><a href="#">Music</a></li>
-                <li><a href="#">DJ Sets</a></li>
-                <li><a href="#">News</a></li>
-              </ul>
-            </div>
-            <div class="info">
-              <h4>Join In</h4>
-              <ul>
-                <li><a href="/login/">Sign In</a></li>
-				<li><a href="/register/">Register</a></li>
-                <li><a href="/logout/">Log Out</a></li>
-                <li><a href="/users/">Find User</a></li>
-              </ul>
-            </div>
-            <div class="phone">
-              <h4>Order Tickets</h4>
-              <p>Free Phone<span>8-800-123-NIGHT</span></p>
-            </div>
-          </div>
+	  %include("spodaj.tpl")
       </footer>
       <!--footer end-->
     </div>
@@ -127,7 +102,7 @@
 </div>
 <script>
 $(document).ready(function () {
-    //gallery
+    //galerija
     $("#gallery1").jCarouselLite({
         btnNext: ".next",
         btnPrev: ".prev",

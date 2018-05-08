@@ -1,4 +1,8 @@
 /* Getting the new tags to behave */
+th {
+    text-align: left;
+}
+
 article, aside, audio, canvas, command, datalist, details, embed, figcaption, figure, footer, header, hgroup, keygen, meter, nav, output, progress, section, source, video {
 	display: block;
 }
@@ -20,7 +24,7 @@ mark, rp, rt, ruby, summary, time {
 /* Global properties ======================================================== */
 
 body {
-	background: url(../images/bg.jpg) center 0 no-repeat #000;
+	background: url(../images/denar.jpg) center 0 #000;
 	border:0;
 	font:14px Arial, Helvetica, sans-serif;
 	color:#7f7f7f;

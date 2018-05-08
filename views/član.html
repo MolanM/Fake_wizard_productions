@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Ponarejevalci denarja | Člani</title>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="all">
+<link rel="stylesheet" href="/static/css/layout.css" type="text/css" media="all">
+<link rel="stylesheet" href="/static/css/style.css" type="text/css" media="all">
+<!-- <script src="static/js/jquery-1.6.js" ></script>
+<script src="static/js/cufon-yui.js"></script>
+<script src="static/js/cufon-replace.js"></script>
+<script src="static/js/NewsGoth_BT_400.font.js"></script>
+<script src="static/js/NewsGoth_BT_700.font.js"></script>
+<script src="static/js/atooltip.jquery.js"></script> -->
+<!--[if lt IE 9]>
+<script src="js/html5.js"></script>
+<link rel="stylesheet" href="css/ie.css" type="text/css" media="all">
+<![endif]-->
+</head>
+<body id="page4">
+<div class="bg1">
+  <div class="main">
+    <!--header -->
+    <header>
+      <nav>
+        <ul id="menu">
+          <li><a href="/index/">Skupina</a></li>
+          <li><a href="/dogodki/">Dogodki</a></li>
+          <li><a href="/galerija/">Galerija</a></li>
+          <li><a href="/clani/">Člani</a></li>
+          <li><a href="/novice/">Novice</a></li>
+          <li><a href="/kontakt/">Kontakt</a></li>
+        </ul>
+      </nav>
+      <h1><a href="/index/" id="logo">Ponarejevalci denarja feel the rhythm</a></h1>
+    </header>
+    <!--header end-->
+    <div class="box">
+      <!--content -->
+      <article id="content">
+        <div class="wrapper">
+		%(id, uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, gru, admin) = uporabnik
+          <h2>{{uporabnisko_ime}}</h2> 
+          <div class="wrapper">
+			  <p class="pad_bot2">
+			  %import os.path
+			  %for ext in ('.png','.jpg','.jpeg'):
+			  %path = os.path.join('static','images','uploads',str(id)+ext) 
+			  %if os.path.isfile(path):
+			  %break
+			  %else:
+			  %path = os.path.join('static','images','uploads',str(spol_uporabnika)+'.png')
+			  %end
+			  %end
+			  <img src="/{{path}}" style="max-width: 100px; max-height: 100px;"/> <br>
+			  <span class="color2">{{ime}} {{priimek}}</span> <br> 
+			  <span class="color1">Spol: {{spol_uporabnika}}</span> <br>
+			  <span class="color1">Rojstni datum: {{rojstvo}}</span> <br>
+			  <span class="color1">Stanje: {{stanje}}</span> </p>
+			  
+			  <form method="post">
+			  Ponaredi uporabniku stanje: <input placeholder="Kolicina" type="number" name="stanje"/>
+			  <input type="submit" value="Submit">
+			  <input type="reset">
+			  </form>
+			  
+			  <p>
+			  %if pesmi:
+				  <h3>Kupljene pesmi</h3> <input type="submit" onclick="prikaziPesmi()" id="kup_pesmi_but" value="Prikaži"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="kup_pesmi"; style = "display:none">
+				  %for id_pesmi,naslov in pesmi:
+					<tr>
+					   <td><a href="/song/{{id_pesmi}}/" style="text-decoration: none">{{naslov}}</a></td>
+					</tr>
+				  %end
+				  </table>
+				  <script>
+function prikaziPesmi() {
+    var x = document.getElementById("kup_pesmi");
+	var y = document.getElementById("kup_pesmi_but");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+		y.value = "Skrij";
+    } else {
+        x.style.display = "none";
+		y.value = "Prikaži";
+    }
+}
+</script>
+			  %end
+			  </p>
+			  <p>
+			  %if albumi:
+				  <h3>Kupljeni albumi</h3> <input type="submit" onclick="prikaziAlbumi()" id="kup_albumi_but" value="Prikaži"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="kup_albumi"; style = "display:none">
+				  %for id_albuma,naslov in albumi:
+					<tr>
+					   <td><a href="/album/{{id_albuma}}/" style="text-decoration: none">{{naslov}}</a></td>
+					</tr>
+				  %end
+				  </table>
+				  <script>
+function prikaziAlbumi() {
+    var x = document.getElementById("kup_albumi");
+	var y = document.getElementById("kup_albumi_but");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+		y.value = "Skrij";
+    } else {
+        x.style.display = "none";
+		y.value = "Prikaži";
+    }
+}
+</script>
+			  %end
+			  </p>
+			  <p>
+			  %if dogodki:
+				  <h3>Udelezeni dogodki</h3> <input type="submit" onclick="prikaziDogodki()" id="kup_dogodki_but" value="Prikaži"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="kup_dogodki"; style = "display:none">
+				  %for id_dogodka,naslov in dogodki:
+					<tr>
+					   <td><a href="/event/{{id_dogodka}}/" style="text-decoration: none">{{naslov}}</a></td>
+					</tr>
+				  %end
+				  </table>
+				  <script>
+function prikaziDogodki() {
+    var x = document.getElementById("kup_dogodki");
+	var y = document.getElementById("kup_dogodki_but");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+		y.value = "Skrij";
+    } else {
+        x.style.display = "none";
+		y.value = "Prikaži";
+    }
+}
+</script>
+			  %end
+			  </p>
+          </div>
+        </div>
+      </article>
+      <!--content end-->
+      <!--footer -->
+      <footer>
+	  %include("spodaj.tpl")
+      </footer>
+      <!--footer end-->
+    </div>
+  </div>
+</div>
+<script>Cufon.now();</script>
+</body>
+</html>
