@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Ponarejevalci denarja | Člani</title>
+<title>Ponarejevalci denarja | Dogodki</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="all">
 <link rel="stylesheet" href="/static/css/layout.css" type="text/css" media="all">
@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="css/ie.css" type="text/css" media="all">
 <![endif]-->
 </head>
-<body id="page4">
+<body id="page2">
 <div class="bg1">
   <div class="main">
     <!--header -->
@@ -39,47 +39,44 @@
       <!--content -->
       <article id="content">
         <div class="wrapper">
-		%import datetime
-		%(id, naslov, datum, tip) = dogodek
-		%datum = datum.strftime("%d %B %Y")
-		%#m_dolzina, s_dolzina = divmod(dolzina.seconds, 60)
-		%#(ime_zanr,)=zanr
-          <h2>{{naslov}}</h2> 
+		   <h2>Poišči album</h2>	
+            <form id = "ContactForm" action=".">
+			<div>
+			  <div class="wrapper"> <span> Ključne besede: </span>
+									<input type="text" name ="search" placeholder="Vnesi"
+									value = "{{iskanje}}" />
+								</div>
+			  <div class = "wrapper"> <span> Po: </span> 
+				<input placeholder="Vnesi rojstni datum" value = "{{sp_datum}}" type="date" name="spodnji"
+				/> 
+			  </div>
+			  <div class = "wrapper"> <span> Pred: </span> 
+				<input placeholder="Vnesi rojstni datum" type="date" name="zgornji"
+				value = "{{zg_datum}}"/> 
+			  </div>
+			  <button type="submit" class="btn btn-default">Filter</button>
+			  <button type="reset" onclick="location.href='/albumi/'" class="btn btn-default">Reset</button>
+		  </form>		   
+		
+          <h2>Albumi skupine</h2>
           <div class="wrapper">
-			  <p class="pad_bot2">
-			  <span class="color1">Datum: {{datum}}</span> <br>
-			  <span class="color1">Tip: {{tip}}</span> </p>
-			  
-			  
-			  %if username is not None and not udelezeno:
-			  <form method="post">
-			  <input type="submit" value="Potrdi udeležbo"> <br>
-			  </form>
-			  %elif username is not None and udelezeno:
-			  <span class="color1">Dogodka ste se udeležili.</span> <br>
+			  <table cellpadding="0" cellspacing="0" border="1" width=100%>
+			  <thead>
+			  <tr>
+				 <th>Naslov</th>
+				 <th>Izdan</th>
+				 <th>Cena</th>
+			  </tr>
+			  </thead>
+			  %for (id_albuma,naslov,izdan,opis,cena) in albumi:
+			    %izdan = izdan.strftime("%d %B %Y")
+				<tr>
+				   <td><a href="/album/{{id_albuma}}/" style="text-decoration: none">{{naslov}}</a></td>
+				   <td>{{izdan}}</td>
+				   <td>{{cena}}</td>
+				</tr>
 			  %end
-			  <br>
-			  %if pesmi:
-			  <h3>Izvedene pesmi</h3>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
-				  %for (id_pesmi,naslov,) in pesmi:
-					<tr>
-					   <td><a href="/song/{{id_pesmi}}/" style="text-decoration: none">{{naslov}}</a></td>
-					</tr>
-				  %end
-				  </table>
-			  %end
-			  
-			  %if litdela:
-			  <h3>Izvedena literarna dela:</h3>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
-				  %for (id_litdela,naslov,) in litdela:
-					<tr>
-					   <td><a href="/litdelo/{{id_litdela}}/" style="text-decoration: none">{{naslov}}</a></td>
-					</tr>
-				  %end
-				  </table>
-			  %end
+			  </table>
           </div>
         </div>
       </article>

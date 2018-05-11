@@ -98,6 +98,90 @@ def index():
     Dogodki=cur.fetchall()
     return template('dogodki.html', username=username_login, dogodki=Dogodki, udelezeni=UdelezeniDogodki, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'])
 
+@get('/litdela/')
+def index():
+    query = dict(request.query)
+    ORstring='''
+        SELECT * FROM lit_delo
+        WHERE 1=1\n'''
+    parameters = [] #vektor parametrov za sql stavke
+    try: test = query['search']
+    except: query['search'] = ''
+    try: test = query['spodnji']
+    except: query['spodnji'] = ''
+    try: test = query['zgornji']
+    except: query['zgornji'] = ''
+    if query['search'] != '':
+        ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
+        parameters = parameters + ['%'+query['search']+'%']
+        print('%'+query['search']+'%')
+    if query['spodnji'] != '':
+        ORstring += '''AND (izdan >= to_date(%s, 'yyyy-mm-dd') )'''
+        parameters = parameters + [query['spodnji']]
+    if query['zgornji'] != '':
+        ORstring += '''AND (izdan <= to_date(%s, 'yyyy-mm-dd') )'''
+        parameters = parameters + [query['zgornji']]
+    ORstring += '''ORDER BY izdan'''
+    cur.execute(ORstring,parameters)
+    Litdela=cur.fetchall()
+    return template('litdela.html', litdela=Litdela, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'])
+
+@get('/albumi/') #DODAJ FILTRE PO CENI IN ALBUMIH V LASTI IN OMOGOČI IZBOR NAČINA SORTIRANJA
+def index():
+    query = dict(request.query)
+    ORstring='''
+        SELECT * FROM album
+        WHERE 1=1\n'''
+    parameters = [] #vektor parametrov za sql stavke
+    try: test = query['search']
+    except: query['search'] = ''
+    try: test = query['spodnji']
+    except: query['spodnji'] = ''
+    try: test = query['zgornji']
+    except: query['zgornji'] = ''
+    if query['search'] != '':
+        ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
+        parameters = parameters + ['%'+query['search']+'%']
+        print('%'+query['search']+'%')
+    if query['spodnji'] != '':
+        ORstring += '''AND (izdan >= to_date(%s, 'yyyy-mm-dd') )'''
+        parameters = parameters + [query['spodnji']]
+    if query['zgornji'] != '':
+        ORstring += '''AND (izdan <= to_date(%s, 'yyyy-mm-dd') )'''
+        parameters = parameters + [query['zgornji']]
+    ORstring += '''ORDER BY izdan'''
+    cur.execute(ORstring,parameters)
+    Albumi=cur.fetchall()
+    return template('albumi.html', albumi=Albumi, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'])
+
+@get('/pesmi/') #DODAJ FILTRE PO DOLZINI, CENI IN PESMIH V LASTI IN OMOGOČI IZBOR NAČINA SORTIRANJA
+def index():
+    query = dict(request.query)
+    ORstring='''
+        SELECT * FROM pesem
+        WHERE 1=1\n'''
+    parameters = [] #vektor parametrov za sql stavke
+    try: test = query['search']
+    except: query['search'] = ''
+    try: test = query['spodnji']
+    except: query['spodnji'] = ''
+    try: test = query['zgornji']
+    except: query['zgornji'] = ''
+    if query['search'] != '':
+        ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
+        parameters = parameters + ['%'+query['search']+'%']
+        print('%'+query['search']+'%')
+    if query['spodnji'] != '':
+        ORstring += '''AND (izdan >= to_date(%s, 'yyyy-mm-dd') )'''
+        parameters = parameters + [query['spodnji']]
+    if query['zgornji'] != '':
+        ORstring += '''AND (izdan <= to_date(%s, 'yyyy-mm-dd') )'''
+        parameters = parameters + [query['zgornji']]
+    ORstring += '''ORDER BY izdan'''
+    cur.execute(ORstring,parameters)
+    Pesmi=cur.fetchall()
+    return template('pesmi.html', pesmi=Pesmi, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'])
+
 @get('/galerija/')
 def index():
     return template('galerija.html')
@@ -275,11 +359,11 @@ def user(id):
     (id, naslov, dolzina, izdan, zanr, cena) = Pesem
     cur.execute("SELECT naslov FROM zanr WHERE id = %s", [int(zanr)])
     Zanr = cur.fetchone()
-    cur.execute("SELECT clan.ime FROM avtor_pesmi JOIN clan ON avtor_pesmi.clanid = clan.id WHERE pesemid = %s", [int(zanr)])
+    cur.execute("SELECT clan.ime FROM avtor_pesmi JOIN clan ON avtor_pesmi.clanid = clan.id WHERE pesemid = %s", [int(id)])
     Avtorji_p = []
     for (ime,) in cur:
         Avtorji_p.append(ime)
-    cur.execute("SELECT clan.ime FROM avtor_besedila_pesmi JOIN clan ON avtor_besedila_pesmi.clanid = clan.id WHERE pesemid = %s", [int(zanr)])
+    cur.execute("SELECT clan.ime FROM avtor_besedila_pesmi JOIN clan ON avtor_besedila_pesmi.clanid = clan.id WHERE pesemid = %s", [int(id)])
     Avtorji_b = []
     for (ime,) in cur:
         Avtorji_b.append(ime)
@@ -287,6 +371,24 @@ def user(id):
     cur.execute("SELECT album.id, album.naslov FROM album_pesem JOIN album ON album_pesem.albumid = album.id WHERE pesemid = %s", [int(id)])
     Albumi = cur.fetchall()
     return template("song.html", pesem=Pesem, zanr=Zanr, avtorji_pesmi = Avtorji_p, avtorji_besedila = Avtorji_b, albumi=Albumi, username=username_login, kupljeno = ze_kupljeno)
+
+@route("/litdelo/<id>/")
+def user(id):
+    """Prikaži stran uporabnika"""
+    # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
+    cur.execute("SELECT * FROM lit_delo WHERE id = %s", [int(id)])
+    Litdelo = cur.fetchone()
+    (id, naslov, izdan, zaloznik, tip) = Litdelo
+    cur.execute("SELECT naslov FROM tip_lit_dela WHERE id = %s", [int(tip)])
+    Tip = cur.fetchone()
+    cur.execute("SELECT clan.ime FROM avtor_lit_dela JOIN clan ON avtor_lit_dela.clanid = clan.id WHERE litdeloid = %s", [int(id)])
+    Avtorji_l = []
+    for (ime,) in cur:
+        Avtorji_l.append(ime)
+    # Prikažemo predlogo
+    cur.execute("SELECT dogodek.id, dogodek.naslov FROM izvedena_lit_dela JOIN dogodek ON izvedena_lit_dela.dogodekid = dogodek.id WHERE litdeloid = %s", [int(id)])
+    Dogodki = cur.fetchall()
+    return template("litdelo.html", litdelo=Litdelo, tip=Tip, avtorji_litdela = Avtorji_l, dogodki=Dogodki)
 
 @post("/song/<id>/")
 def user(id):
@@ -350,9 +452,11 @@ def user(id):
         udelezeno = False
     cur.execute("SELECT * FROM dogodek WHERE id = %s", [int(id)])
     Dogodek = cur.fetchone()
-    cur.execute('SELECT pesem.id, pesem.naslov FROM izvedene_pesmi JOIN pesem ON izvedene_pesmi.pesemid = pesem.id WHERE dogodekid = 1', [int(id)])
+    cur.execute('SELECT pesem.id, pesem.naslov FROM izvedene_pesmi JOIN pesem ON izvedene_pesmi.pesemid = pesem.id WHERE dogodekid = %s', [int(id)])
     Pesmi = cur.fetchall()
-    return template("dogodek.html", dogodek=Dogodek, pesmi=Pesmi, username = username_login, udelezeno=udelezeno)
+    cur.execute('SELECT lit_delo.id, lit_delo.naslov FROM izvedena_lit_dela JOIN lit_delo ON izvedena_lit_dela.litdeloid = lit_delo.id WHERE dogodekid = %s', [int(id)])
+    Litdela = cur.fetchall()
+    return template("dogodek.html", dogodek=Dogodek, pesmi=Pesmi, litdela=Litdela, username = username_login, udelezeno=udelezeno)
 
 @post("/dogodek/<id>/")
 def user(id):

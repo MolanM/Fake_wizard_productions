@@ -40,46 +40,31 @@
       <article id="content">
         <div class="wrapper">
 		%import datetime
-		%(id, naslov, datum, tip) = dogodek
-		%datum = datum.strftime("%d %B %Y")
-		%#m_dolzina, s_dolzina = divmod(dolzina.seconds, 60)
-		%#(ime_zanr,)=zanr
+		%(id, naslov, izdan, zaloznik, _) = litdelo
+		%izdan = izdan.strftime("%d %B %Y")
+		%(ime_tip,)=tip
+		%seznam_al = ', '.join(avtorji_litdela)
           <h2>{{naslov}}</h2> 
           <div class="wrapper">
 			  <p class="pad_bot2">
-			  <span class="color1">Datum: {{datum}}</span> <br>
-			  <span class="color1">Tip: {{tip}}</span> </p>
+			  <span class="color1">Datum izdaje: {{izdan}}</span> <br>
+			  <span class="color1">Avtorji: {{seznam_al}}</span> <br>
+			  <span class="color1">Zaloznik: {{zaloznik}}</span> <br>
+			  <span class="color1">Tip: {{ime_tip}}</span> </p>
 			  
-			  
-			  %if username is not None and not udelezeno:
-			  <form method="post">
-			  <input type="submit" value="Potrdi udeležbo"> <br>
-			  </form>
-			  %elif username is not None and udelezeno:
-			  <span class="color1">Dogodka ste se udeležili.</span> <br>
-			  %end
-			  <br>
-			  %if pesmi:
-			  <h3>Izvedene pesmi</h3>
+			  %if dogodki:
+			  <p>
+			  <h3>Je bilo izvedeno na dogodkih:</h3>
 				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
-				  %for (id_pesmi,naslov,) in pesmi:
+				  %for id_dogodka,naslov in dogodki:
 					<tr>
-					   <td><a href="/song/{{id_pesmi}}/" style="text-decoration: none">{{naslov}}</a></td>
+					   <td><a href="/dogodek/{{id_dogodka}}/" style="text-decoration: none">{{naslov}}</a></td>
 					</tr>
 				  %end
 				  </table>
+			  </p>
 			  %end
 			  
-			  %if litdela:
-			  <h3>Izvedena literarna dela:</h3>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
-				  %for (id_litdela,naslov,) in litdela:
-					<tr>
-					   <td><a href="/litdelo/{{id_litdela}}/" style="text-decoration: none">{{naslov}}</a></td>
-					</tr>
-				  %end
-				  </table>
-			  %end
           </div>
         </div>
       </article>
