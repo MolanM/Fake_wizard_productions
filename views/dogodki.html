@@ -54,6 +54,30 @@
 				<input placeholder="Vnesi rojstni datum" type="date" name="zgornji"
 				value = "{{zg_datum}}"/> 
 			  </div>
+			  <div class = "wrapper"> <span> Uredi po: </span>  <select name="urejanje">
+					  <option value="naslov"
+					  %if ureditev == "naslov":
+					  selected="selected"
+					  %end
+					  >Naslov</option>
+					  <option value="datum" 
+					  %if ureditev == "datum":
+					  selected="selected"
+					  %end
+					  >Datum</option>
+			  </select> </div>
+			  <div class = "wrapper"> <span> Način urejanja: </span>  <select name="nacin_u">
+					  <option value="ASC"
+					  %if na_ureditve == "ASC":
+					  selected="selected"
+					  %end
+					  >Naraščajoče</option>
+					  <option value="DESC" 
+					  %if na_ureditve == "DESC":
+					  selected="selected"
+					  %end
+					  >Padajoče</option>
+			  </select> </div>
 			  <button type="submit" class="btn btn-default">Filter</button>
 			  <button type="reset" onclick="location.href='/dogodki/'" class="btn btn-default">Reset</button>
 		  </form>		   

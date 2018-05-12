@@ -54,6 +54,46 @@
 				<input placeholder="Vnesi rojstni datum" type="date" name="zgornji"
 				value = "{{zg_datum}}"/> 
 			  </div>
+			  <div class = "wrapper"> <span> Sp. cena: </span> 
+				<input placeholder="Vnesi sp. ceno" type="number" name="sp_cena" value = "{{sp_cena}}"/> 
+			  </div>
+			  <div class = "wrapper"> <span> Zg. cena: </span> 
+				<input placeholder="Vnesi zg. ceno" type="number" name="zg_cena" value = "{{zg_cena}}"/> 
+			  </div>
+			  <div class = "wrapper"> <span> Uredi po: </span>  <select name="urejanje">
+					  <option value="naslov"
+					  %if ureditev == "naslov":
+					  selected="selected"
+					  %end
+					  >Naslov</option>
+					  <option value="izdan" 
+					  %if ureditev == "izdan":
+					  selected="selected"
+					  %end
+					  >Datum izdaje</option>
+					  <option value="dolzina" 
+					  %if ureditev == "dolzina":
+					  selected="selected"
+					  %end
+					  >Dolzina</option>
+					  <option value="cena"
+					  %if ureditev == "cena":
+					  selected="selected"
+					  %end
+					  >Cena</option>
+			  </select> </div>
+			  <div class = "wrapper"> <span> Način urejanja: </span>  <select name="nacin_u">
+					  <option value="ASC"
+					  %if na_ureditve == "ASC":
+					  selected="selected"
+					  %end
+					  >Naraščajoče</option>
+					  <option value="DESC" 
+					  %if na_ureditve == "DESC":
+					  selected="selected"
+					  %end
+					  >Padajoče</option>
+			  </select> </div>
 			  <button type="submit" class="btn btn-default">Filter</button>
 			  <button type="reset" onclick="location.href='/pesmi/'" class="btn btn-default">Reset</button>
 		  </form>		   

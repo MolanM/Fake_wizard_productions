@@ -82,6 +82,10 @@ def index():
     except: query['spodnji'] = ''
     try: test = query['zgornji']
     except: query['zgornji'] = ''
+    try: test = query['urejanje']
+    except: query['urejanje'] = ''
+    try: test = query['nacin_u']
+    except: query['nacin_u'] = ''
     if query['search'] != '':
         ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
@@ -92,11 +96,20 @@ def index():
     if query['zgornji'] != '':
         ORstring += '''AND (datum <= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['zgornji']]
-    ORstring += '''ORDER BY datum'''
+    if query['urejanje'] in ['naslov', 'datum']:
+        ORstring += '''ORDER BY ''' + query['urejanje']
+    else:
+        query['urejanje'] = 'datum'
+        ORstring += '''ORDER BY ''' + query['urejanje']
+    if query['nacin_u'] in ['ASC', 'DESC']:
+        ORstring += ''' ''' + query['nacin_u']
+    else:
+        query['nacin_u'] = 'DESC'
+        ORstring += ''' ''' + query['nacin_u']
     cur.execute(ORstring,parameters)
 
     Dogodki=cur.fetchall()
-    return template('dogodki.html', username=username_login, dogodki=Dogodki, udelezeni=UdelezeniDogodki, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'])
+    return template('dogodki.html', username=username_login, dogodki=Dogodki, udelezeni=UdelezeniDogodki, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'])
 
 @get('/litdela/')
 def index():
@@ -111,6 +124,10 @@ def index():
     except: query['spodnji'] = ''
     try: test = query['zgornji']
     except: query['zgornji'] = ''
+    try: test = query['urejanje']
+    except: query['urejanje'] = ''
+    try: test = query['nacin_u']
+    except: query['nacin_u'] = ''
     if query['search'] != '':
         ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
@@ -121,12 +138,21 @@ def index():
     if query['zgornji'] != '':
         ORstring += '''AND (izdan <= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['zgornji']]
-    ORstring += '''ORDER BY izdan'''
+    if query['urejanje'] in ['naslov', 'izdan']:
+        ORstring += '''ORDER BY ''' + query['urejanje']
+    else:
+        query['urejanje'] = 'izdan'
+        ORstring += '''ORDER BY ''' + query['urejanje']
+    if query['nacin_u'] in ['ASC', 'DESC']:
+        ORstring += ''' ''' + query['nacin_u']
+    else:
+        query['nacin_u'] = 'DESC'
+        ORstring += ''' ''' + query['nacin_u']
     cur.execute(ORstring,parameters)
     Litdela=cur.fetchall()
-    return template('litdela.html', litdela=Litdela, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'])
+    return template('litdela.html', litdela=Litdela, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'])
 
-@get('/albumi/') #DODAJ FILTRE PO CENI IN ALBUMIH V LASTI IN OMOGOČI IZBOR NAČINA SORTIRANJA
+@get('/albumi/')
 def index():
     query = dict(request.query)
     ORstring='''
@@ -139,6 +165,14 @@ def index():
     except: query['spodnji'] = ''
     try: test = query['zgornji']
     except: query['zgornji'] = ''
+    try: test = query['sp_cena']
+    except: query['sp_cena'] = ''
+    try: test = query['zg_cena']
+    except: query['zg_cena'] = ''
+    try: test = query['urejanje']
+    except: query['urejanje'] = ''
+    try: test = query['nacin_u']
+    except: query['nacin_u'] = ''
     if query['search'] != '':
         ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
@@ -149,12 +183,27 @@ def index():
     if query['zgornji'] != '':
         ORstring += '''AND (izdan <= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['zgornji']]
-    ORstring += '''ORDER BY izdan'''
+    if query['sp_cena'] != '':
+        ORstring += '''AND (cena >= %s )'''
+        parameters = parameters + [query['sp_cena']]
+    if query['zg_cena'] != '':
+        ORstring += '''AND (cena <= %s )'''
+        parameters = parameters + [query['zg_cena']]
+    if query['urejanje'] in ['naslov', 'izdan', 'cena']:
+        ORstring += '''ORDER BY ''' + query['urejanje']
+    else:
+        query['urejanje'] = 'izdan'
+        ORstring += '''ORDER BY ''' + query['urejanje']
+    if query['nacin_u'] in ['ASC', 'DESC']:
+        ORstring += ''' ''' + query['nacin_u']
+    else:
+        query['nacin_u'] = 'DESC'
+        ORstring += ''' ''' + query['nacin_u']
     cur.execute(ORstring,parameters)
     Albumi=cur.fetchall()
-    return template('albumi.html', albumi=Albumi, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'])
+    return template('albumi.html', albumi=Albumi, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], sp_cena = query['sp_cena'], zg_cena = query['zg_cena'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'])
 
-@get('/pesmi/') #DODAJ FILTRE PO DOLZINI, CENI IN PESMIH V LASTI IN OMOGOČI IZBOR NAČINA SORTIRANJA
+@get('/pesmi/')
 def index():
     query = dict(request.query)
     ORstring='''
@@ -167,6 +216,14 @@ def index():
     except: query['spodnji'] = ''
     try: test = query['zgornji']
     except: query['zgornji'] = ''
+    try: test = query['sp_cena']
+    except: query['sp_cena'] = ''
+    try: test = query['zg_cena']
+    except: query['zg_cena'] = ''
+    try: test = query['urejanje']
+    except: query['urejanje'] = ''
+    try: test = query['nacin_u']
+    except: query['nacin_u'] = ''
     if query['search'] != '':
         ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
@@ -177,10 +234,25 @@ def index():
     if query['zgornji'] != '':
         ORstring += '''AND (izdan <= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['zgornji']]
-    ORstring += '''ORDER BY izdan'''
+    if query['sp_cena'] != '':
+        ORstring += '''AND (cena >= %s )'''
+        parameters = parameters + [query['sp_cena']]
+    if query['zg_cena'] != '':
+        ORstring += '''AND (cena <= %s )'''
+        parameters = parameters + [query['zg_cena']]
+    if query['urejanje'] in ['naslov', 'dolzina', 'izdan', 'cena']:
+        ORstring += '''ORDER BY ''' + query['urejanje']
+    else:
+        query['urejanje'] = 'izdan'
+        ORstring += '''ORDER BY ''' + query['urejanje']
+    if query['nacin_u'] in ['ASC', 'DESC']:
+        ORstring += ''' ''' + query['nacin_u']
+    else:
+        query['nacin_u'] = 'DESC'
+        ORstring += ''' ''' + query['nacin_u']
     cur.execute(ORstring,parameters)
     Pesmi=cur.fetchall()
-    return template('pesmi.html', pesmi=Pesmi, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'])
+    return template('pesmi.html', pesmi=Pesmi, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], sp_cena = query['sp_cena'], zg_cena = query['zg_cena'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'])
 
 @get('/galerija/')
 def index():
