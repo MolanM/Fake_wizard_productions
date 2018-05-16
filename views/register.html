@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Ponarejevalci denarja | Kontakt</title>
+<title>Ponarejevalci denarja</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="all">
 <link rel="stylesheet" href="/static/css/layout.css" type="text/css" media="all">
@@ -40,6 +40,7 @@
       <article id="content">
         <div class="wrapper">
 		
+		  %if not prijavljen_uporabnik:
 		  <h2>Registriraj novega uporabnika</h2>
 		  <form id = "ContactForm" method="post" enctype="multipart/form-data">
 			<div>
@@ -88,6 +89,9 @@
 			  <input type="reset"> </div>
 		  <!-- <button>Dodaj uporabnika</button> -->
 		  </form>
+		  %else:
+		  <h2>Pozdravljeni {{prijavljen_uporabnik}}!</h2>
+		  %end
 		  
 		  <font color={{barva}}>{{napaka}}</font> 
 		  

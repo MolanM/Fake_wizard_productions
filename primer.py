@@ -287,8 +287,11 @@ def index():
 
 @get('/register/')
 def index():
-    cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
-    return template('register.html', napaka="Vse OK", barva="green", clani=cur)
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        return template('register.html', napaka="Ste že prijavljeni!", barva="red", prijavljen_uporabnik=username_login)
+    else:
+        return template('register.html', napaka="Vse OK", barva="green", prijavljen_uporabnik=None)
 
 @get('/prijava/')
 def index():
@@ -348,9 +351,6 @@ def uporabnik():
 
 @post('/register/')
 def uporabnik():
-    x = 0
-    cur.execute("SELECT * FROM uporabnik WHERE stanje > %s ORDER BY uporabnisko_ime, stanje", [int(x)])
-    #spremenljivko smo shranili v znesek
     UporabniskoIme = request.forms.uporabniskoime
     Geslo1 = request.forms.geslo1
     Geslo2 = request.forms.geslo2
@@ -366,11 +366,9 @@ def uporabnik():
     cur.execute("SELECT 1 FROM uporabnik WHERE uporabnisko_ime=%s", [UporabniskoIme])
     if cur.fetchone():
         # Uporabnik že obstaja
-        cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-        return template('register.html', x=x, napaka = 'To uporabniško ime je že zavzeto', barva="red", uporabniki=cur)
+        return template('register.html', napaka = 'To uporabniško ime je že zavzeto', barva="red", prijavljen_uporabnik=None)
     elif not Geslo1 == Geslo2:
-        cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-        return template('register.html', x=x, napaka = 'Gesli se ne ujemata', barva="red", uporabniki=cur)
+        return template('register.html', napaka = 'Gesli se ne ujemata', barva="red", prijavljen_uporabnik=None)
     #elif Slika is None:
     #    cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
     #    return template('contacts.html', x=x, napaka = 'Niste dodali slike', uporabniki=cur)
@@ -397,8 +395,7 @@ def uporabnik():
         #    cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
         #    return template('contacts.html', x=x, napaka = "Napaka pri dodajanju uporabnika", uporabniki=cur)
     else:
-        cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-        return template('register.html', x=x, napaka = 'Prosim izpolnite manjkajoče podatke', barva="red", uporabniki=cur)
+        return template('register.html', napaka = 'Prosim izpolnite manjkajoče podatke', barva="red", prijavljen_uporabnik=None)
 
 @route("/user/<id>/")
 def user(id):
