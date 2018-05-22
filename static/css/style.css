@@ -123,6 +123,38 @@ header {
 	background:url(../images/logo.png) 0 0 no-repeat;
 	width:86px;
 	height:86px;
+	float: left;
+}
+#uporabnik {
+	background:url(../images/bg_content.png) repeat;
+	padding:5px 5px 5px 5px;
+	overflow:hidden;
+    width: 344px;
+    height: 86px;
+    float: right;
+}
+#uporabnik > h3{
+	text-align:center;
+	font-size:40px;
+	padding:0 0 0 0;
+	color:#fff;
+	line-height:1em;
+}
+#uporabnik > h3 > a{
+	color:#fff;
+}
+#uporabnik > a{
+	font-size:15px;
+	color:#fff;
+}
+#uporabnik > center {
+	padding:0 0 0 0;
+}
+#uporabnik > center > a{
+	padding:0 0 9px 0;
+	font-size:30px;
+	text-align:center;
+	color:#fff;
 }
 #menu {
 	width:100%;
@@ -317,6 +349,15 @@ footer a:hover {
 	background:url(../images/line_vert1.gif) 600px 0 repeat-y;
 	height:100%
 }
+/*.uporabnik{
+		background:url(../images/bg_content.png) repeat;
+		padding:20px 46px 50px 49px;
+		overflow:hidden;
+        width: 100px;
+        height: 100px;
+		float: right;
+        Background-color: #fff;
+}*/
 .icons {
 	float:left;
 	width:230px;
@@ -379,6 +420,39 @@ footer a:hover {
 	float:left;
 	width:120px;
 	line-height:30px;
+}
+.DesniGumb{
+	margin-right:5px;
+	float:right;
+	font-size:25px;
+	color:#7532a9;
+	text-decoration:none;
+	letter-spacing:-2px;
+	padding:0 13px;
+	line-height:26px;
+	height:31px;
+	background:#fff;
+	box-shadow: 0 0 6px rgba(256, 256, 256, .5);
+	-moz-box-shadow: 0 0 6px rgba(256, 256, 256, .5);
+	-webkit-box-shadow:  0 0 6px rgba(256, 256, 256, .5);
+	position: relative;
+	margin-bottom:5px;
+}
+.PosebniGumb{
+	margin-right:5px;
+	font-size:25px;
+	color:#7532a9;
+	text-decoration:none;
+	letter-spacing:-2px;
+	padding:0 13px;
+	line-height:26px;
+	height:31px;
+	background:#fff;
+	box-shadow: 0 0 6px rgba(256, 256, 256, .5);
+	-moz-box-shadow: 0 0 6px rgba(256, 256, 256, .5);
+	-webkit-box-shadow:  0 0 6px rgba(256, 256, 256, .5);
+	position: relative;
+	margin-bottom:5px;
 }
 #ContactForm .button {
 	margin-right:5px;

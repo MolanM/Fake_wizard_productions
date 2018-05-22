@@ -33,6 +33,17 @@
         </ul>
       </nav>
       <h1><a href="/index/" id="logo">Ponarejevalci denarja feel the rhythm</a></h1>
+	  <div id="uporabnik">
+		%if prijavljen_uporabnik is not None:
+		<h3><a href="/user/{{id_uporabnik}}/" style="text-decoration: none">{{prijavljen_uporabnik}}</a></h3>
+		<center class="color2">Stanje: {{stanje}}</center>
+		<a href="/logout/">Odjava</a>
+		%else:
+		<br>
+		<center><a href="/prijava/">Prijava</a> ali
+		<a href="/register/">Registracija</a></center>
+		%end
+	  </div>
     </header>
     <!--header end-->
     <div class="box">

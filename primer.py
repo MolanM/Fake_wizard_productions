@@ -58,24 +58,40 @@ def static(filename):
 
 @get('/clani/')
 def index():
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+    else:
+        username_login = None
+        id_user=0
+        stanje=0
     cur.execute("SELECT * FROM clan ORDER BY priimek, ime")
-    return template('clani.html', clani=cur)
+    return template('clani.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, clani=cur)
 
 @get('/dogodki/')
 def index():
+    query = dict(request.query)
+    mnozica=''
     if get_user():
         (username_login, ime_login, id_user) = get_user()
         cur.execute("SELECT dogodekid FROM udelezba_dogodka WHERE uporabnikid = %s", [int(id_user)])
         UdelezeniDogodki = cur.fetchall()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+        try: test = query['prikazi']
+        except: query['prikazi'] = ''
+        if query['prikazi'] == 'udelezeni':
+            mnozica=''') INTERSECT (SELECT id,naslov,datum,tip FROM dogodek JOIN udelezba_dogodka ON udelezba_dogodka.dogodekid = dogodek.id WHERE uporabnikid = %s) '''
+        elif query['prikazi'] == 'neudelezeni':
+            mnozica=''') EXCEPT (SELECT id,naslov,datum,tip FROM dogodek JOIN udelezba_dogodka ON udelezba_dogodka.dogodekid = dogodek.id WHERE uporabnikid = %s) '''
     else:
         username_login = None
         UdelezeniDogodki = None
-
-    query = dict(request.query)
-    ORstring='''
-        SELECT * FROM dogodek
-        WHERE 1=1\n'''
-    parameters = [] #vektor parametrov za sql stavke
+        id_user=0
+        stanje=0
+    ORstring='''((SELECT * FROM dogodek WHERE 1=1\n'''
+    parameters = []
     try: test = query['search']
     except: query['search'] = ''
     try: test = query['spodnji']
@@ -86,6 +102,8 @@ def index():
     except: query['urejanje'] = ''
     try: test = query['nacin_u']
     except: query['nacin_u'] = ''
+    try: test = query['prikazi']
+    except: query['prikazi'] = ''
     if query['search'] != '':
         ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
@@ -96,23 +114,37 @@ def index():
     if query['zgornji'] != '':
         ORstring += '''AND (datum <= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['zgornji']]
+
+    if mnozica != '':
+        ORstring += mnozica
+        parameters = parameters + [id_user]
+    else:
+        ORstring += ''') '''
+
     if query['urejanje'] in ['naslov', 'datum']:
-        ORstring += '''ORDER BY ''' + query['urejanje']
+        ORstring += ''') ORDER BY ''' + query['urejanje']
     else:
         query['urejanje'] = 'datum'
-        ORstring += '''ORDER BY ''' + query['urejanje']
+        ORstring += ''') ORDER BY ''' + query['urejanje']
     if query['nacin_u'] in ['ASC', 'DESC']:
         ORstring += ''' ''' + query['nacin_u']
     else:
         query['nacin_u'] = 'DESC'
         ORstring += ''' ''' + query['nacin_u']
     cur.execute(ORstring,parameters)
-
     Dogodki=cur.fetchall()
-    return template('dogodki.html', username=username_login, dogodki=Dogodki, udelezeni=UdelezeniDogodki, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'])
+    return template('dogodki.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, username=username_login, dogodki=Dogodki, udelezeni=UdelezeniDogodki, prikaz=query['prikazi'], iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'])
 
 @get('/litdela/')
 def index():
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+    else:
+        username_login = None
+        id_user=0
+        stanje=0
     query = dict(request.query)
     ORstring='''
         SELECT * FROM lit_delo
@@ -150,13 +182,28 @@ def index():
         ORstring += ''' ''' + query['nacin_u']
     cur.execute(ORstring,parameters)
     Litdela=cur.fetchall()
-    return template('litdela.html', litdela=Litdela, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'])
+    return template('litdela.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, litdela=Litdela, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'])
 
 @get('/albumi/')
 def index():
     query = dict(request.query)
+    mnozica=''
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+        try: test = query['prikazi']
+        except: query['prikazi'] = ''
+        if query['prikazi'] == 'kupljene':
+            mnozica=''') INTERSECT (SELECT id,naslov,izdan,opis,cena FROM album JOIN kupil_album ON kupil_album.albumid = album.id WHERE uporabnikid = %s) '''
+        elif query['prikazi'] == 'nekupljene':
+            mnozica=''') EXCEPT (SELECT id,naslov,izdan,opis,cena FROM album JOIN kupil_album ON kupil_album.albumid = album.id WHERE uporabnikid = %s) '''
+    else:
+        username_login = None
+        id_user=0
+        stanje=0
     ORstring='''
-        SELECT * FROM album
+        ((SELECT * FROM album
         WHERE 1=1\n'''
     parameters = [] #vektor parametrov za sql stavke
     try: test = query['search']
@@ -173,6 +220,8 @@ def index():
     except: query['urejanje'] = ''
     try: test = query['nacin_u']
     except: query['nacin_u'] = ''
+    try: test = query['prikazi']
+    except: query['prikazi'] = ''
     if query['search'] != '':
         ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
@@ -189,11 +238,18 @@ def index():
     if query['zg_cena'] != '':
         ORstring += '''AND (cena <= %s )'''
         parameters = parameters + [query['zg_cena']]
+
+    if mnozica != '':
+        ORstring += mnozica
+        parameters = parameters + [id_user]
+    else:
+        ORstring += ''') '''
+
     if query['urejanje'] in ['naslov', 'izdan', 'cena']:
-        ORstring += '''ORDER BY ''' + query['urejanje']
+        ORstring += ''') ORDER BY ''' + query['urejanje']
     else:
         query['urejanje'] = 'izdan'
-        ORstring += '''ORDER BY ''' + query['urejanje']
+        ORstring += ''') ORDER BY ''' + query['urejanje']
     if query['nacin_u'] in ['ASC', 'DESC']:
         ORstring += ''' ''' + query['nacin_u']
     else:
@@ -201,13 +257,28 @@ def index():
         ORstring += ''' ''' + query['nacin_u']
     cur.execute(ORstring,parameters)
     Albumi=cur.fetchall()
-    return template('albumi.html', albumi=Albumi, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], sp_cena = query['sp_cena'], zg_cena = query['zg_cena'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'])
+    return template('albumi.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, albumi=Albumi, prikaz=query['prikazi'], iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], sp_cena = query['sp_cena'], zg_cena = query['zg_cena'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'])
 
 @get('/pesmi/')
 def index():
     query = dict(request.query)
+    mnozica=''
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+        try: test = query['prikazi']
+        except: query['prikazi'] = ''
+        if query['prikazi'] == 'kupljene':
+            mnozica=''') INTERSECT (SELECT id,naslov,dolzina,izdan,zanr,cena FROM pesem JOIN kupil_pesem ON kupil_pesem.pesemid = pesem.id WHERE uporabnikid = %s) '''
+        elif query['prikazi'] == 'nekupljene':
+            mnozica=''') EXCEPT (SELECT id,naslov,dolzina,izdan,zanr,cena FROM pesem JOIN kupil_pesem ON kupil_pesem.pesemid = pesem.id WHERE uporabnikid = %s) '''
+    else:
+        username_login = None
+        id_user=0
+        stanje=0
     ORstring='''
-        SELECT * FROM pesem
+        ((SELECT * FROM pesem
         WHERE 1=1\n'''
     parameters = [] #vektor parametrov za sql stavke
     try: test = query['search']
@@ -240,11 +311,18 @@ def index():
     if query['zg_cena'] != '':
         ORstring += '''AND (cena <= %s )'''
         parameters = parameters + [query['zg_cena']]
+
+    if mnozica != '':
+        ORstring += mnozica
+        parameters = parameters + [id_user]
+    else:
+        ORstring += ''') '''
+
     if query['urejanje'] in ['naslov', 'dolzina', 'izdan', 'cena']:
-        ORstring += '''ORDER BY ''' + query['urejanje']
+        ORstring += ''') ORDER BY ''' + query['urejanje']
     else:
         query['urejanje'] = 'izdan'
-        ORstring += '''ORDER BY ''' + query['urejanje']
+        ORstring += ''') ORDER BY ''' + query['urejanje']
     if query['nacin_u'] in ['ASC', 'DESC']:
         ORstring += ''' ''' + query['nacin_u']
     else:
@@ -252,11 +330,19 @@ def index():
         ORstring += ''' ''' + query['nacin_u']
     cur.execute(ORstring,parameters)
     Pesmi=cur.fetchall()
-    return template('pesmi.html', pesmi=Pesmi, iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], sp_cena = query['sp_cena'], zg_cena = query['zg_cena'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'])
+    return template('pesmi.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, pesmi=Pesmi, prikaz=query['prikazi'], iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], sp_cena = query['sp_cena'], zg_cena = query['zg_cena'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'])
 
 @get('/galerija/')
 def index():
-    return template('galerija.html')
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+    else:
+        username_login = None
+        id_user=0
+        stanje=0
+    return template('galerija.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje)
 
 @get('/index/')
 def index():
@@ -264,26 +350,43 @@ def index():
         (username_login, ime_login, id_user) = get_user()
         cur.execute("SELECT dogodekid FROM udelezba_dogodka WHERE uporabnikid = %s", [int(id_user)])
         UdelezeniDogodki = cur.fetchall()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
     else:
         username_login = None
         UdelezeniDogodki = None
-	
-    """ Preberemo zadnje dogodke
-    """
+        id_user=0
+        stanje=0
     cur.execute("SELECT * FROM dogodek WHERE datum <= now()::date ORDER BY datum DESC, id DESC LIMIT 2")
     Dogodki1 = cur.fetchall()
     cur.execute("SELECT * FROM dogodek WHERE datum > now()::date ORDER BY datum ASC, id DESC LIMIT 3")
     Dogodki2 = cur.fetchall()
     
-    return template('index.html', prijavljen_uporabnik=username_login, dogodki=Dogodki1, prihajajoci=Dogodki2, udelezeni=UdelezeniDogodki)
+    return template('index.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, dogodki=Dogodki1, prihajajoci=Dogodki2, udelezeni=UdelezeniDogodki)
 
 @get('/novice/')
 def index():
-    return template('novice.html')
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+    else:
+        username_login = None
+        id_user=0
+        stanje=0
+    return template('novice.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje)
 
 @get('/kontakt/')
 def index():
-    return template('kontakt.html')
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+    else:
+        username_login = None
+        id_user=0
+        stanje=0
+    return template('kontakt.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje)
 
 @get('/register/')
 def index():
@@ -334,6 +437,14 @@ def login_post():
 
 @get('/uporabniki/')
 def uporabnik():
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+    else:
+        username_login = None
+        id_user=0
+        stanje=0
     query = dict(request.query)
     ORstring='''
         SELECT * FROM uporabnik
@@ -347,17 +458,17 @@ def uporabnik():
         print('%'+query['search']+'%')
     ORstring += '''ORDER BY uporabnisko_ime'''
     cur.execute(ORstring,parameters)
-    return template('uporabniki.html', x=0, napaka = "Vse OK", uporabniki=cur.fetchall(), iskanje=query['search'])
+    return template('uporabniki.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, napaka = "Vse OK", uporabniki=cur.fetchall(), iskanje=query['search'])
 
 @post('/register/')
 def uporabnik():
     UporabniskoIme = request.forms.uporabniskoime
     Geslo1 = request.forms.geslo1
     Geslo2 = request.forms.geslo2
-    if request.forms.stanje:
-        Stanje = request.forms.stanje
-    else:
-        Stanje = 0
+    #if request.forms.stanje:
+    #    Stanje = request.forms.stanje
+    #else:
+    Stanje = 1000
     Ime = request.forms.ime
     Priimek = request.forms.priimek
     Rojstvo = request.forms.rojstvo
@@ -401,6 +512,14 @@ def uporabnik():
 def user(id):
     """Prikaži stran uporabnika"""
     # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+    else:
+        username_login = None
+        id_user=0
+        stanje=0
     cur.execute("SELECT * FROM uporabnik WHERE id = %s", [int(id)])
     Uporabnik = cur.fetchone()
     cur.execute("SELECT id,naslov FROM pesem JOIN kupil_pesem ON pesem.id = kupil_pesem.pesemid WHERE uporabnikid = %s", [int(id)])
@@ -410,7 +529,7 @@ def user(id):
     cur.execute("SELECT id,naslov FROM dogodek JOIN udelezba_dogodka ON dogodek.id = udelezba_dogodka.dogodekid WHERE uporabnikid = %s", [int(id)])
     UdelezeniDogodki = cur.fetchall()
     # Prikažemo predlogo
-    return template("član.html", uporabnik=Uporabnik, pesmi=KupljenePesmi, albumi=KupljeniAlbumi, dogodki=UdelezeniDogodki)
+    return template("član.html", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, uporabnik=Uporabnik, pesmi=KupljenePesmi, albumi=KupljeniAlbumi, dogodki=UdelezeniDogodki)
 
 @route("/song/<id>/")
 def user(id):
@@ -420,8 +539,12 @@ def user(id):
         (username_login, ime_login, id_user) = get_user()
         cur.execute("SELECT id,naslov FROM pesem JOIN kupil_pesem ON pesem.id = kupil_pesem.pesemid WHERE uporabnikid = %s AND pesemid = %s", [int(id_user), int(id)])
         ze_kupljeno = cur.fetchone()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
     else:
         username_login = None
+        id_user=0
+        stanje=0
         ze_kupljeno = False
     cur.execute("SELECT * FROM pesem WHERE id = %s", [int(id)])
     Pesem = cur.fetchone()
@@ -439,12 +562,22 @@ def user(id):
     # Prikažemo predlogo
     cur.execute("SELECT album.id, album.naslov FROM album_pesem JOIN album ON album_pesem.albumid = album.id WHERE pesemid = %s", [int(id)])
     Albumi = cur.fetchall()
-    return template("song.html", pesem=Pesem, zanr=Zanr, avtorji_pesmi = Avtorji_p, avtorji_besedila = Avtorji_b, albumi=Albumi, username=username_login, kupljeno = ze_kupljeno)
+    cur.execute("SELECT dogodek.id, dogodek.naslov FROM izvedene_pesmi JOIN dogodek ON izvedene_pesmi.dogodekid = dogodek.id WHERE pesemid = %s", [int(id)])
+    Dogodki = cur.fetchall()
+    return template("song.html", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, pesem=Pesem, zanr=Zanr, avtorji_pesmi = Avtorji_p, avtorji_besedila = Avtorji_b, albumi=Albumi, dogodki=Dogodki, username=username_login, kupljeno = ze_kupljeno)
 
 @route("/litdelo/<id>/")
 def user(id):
     """Prikaži stran uporabnika"""
     # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
+    if get_user():
+        (username_login, ime_login, id_user) = get_user()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+    else:
+        username_login = None
+        id_user=0
+        stanje=0
     cur.execute("SELECT * FROM lit_delo WHERE id = %s", [int(id)])
     Litdelo = cur.fetchone()
     (id, naslov, izdan, zaloznik, tip) = Litdelo
@@ -457,7 +590,7 @@ def user(id):
     # Prikažemo predlogo
     cur.execute("SELECT dogodek.id, dogodek.naslov FROM izvedena_lit_dela JOIN dogodek ON izvedena_lit_dela.dogodekid = dogodek.id WHERE litdeloid = %s", [int(id)])
     Dogodki = cur.fetchall()
-    return template("litdelo.html", litdelo=Litdelo, tip=Tip, avtorji_litdela = Avtorji_l, dogodki=Dogodki)
+    return template("litdelo.html", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, litdelo=Litdelo, tip=Tip, avtorji_litdela = Avtorji_l, dogodki=Dogodki)
 
 @post("/song/<id>/")
 def user(id):
@@ -480,9 +613,13 @@ def user(id):
         (username_login, ime_login, id_user) = get_user()
         cur.execute("SELECT id,naslov FROM album JOIN kupil_album ON album.id = kupil_album.albumid WHERE uporabnikid = %s AND albumid = %s", [int(id_user), int(id)])
         ze_kupljeno = cur.fetchone()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
     else:
         username_login = None
         ze_kupljeno = False
+        id_user=0
+        stanje=0
     cur.execute("SELECT * FROM album WHERE id = %s", [int(id)])
     Album = cur.fetchone()
     cur.execute("SELECT SUM(dolzina) FROM album_pesem JOIN pesem ON album_pesem.pesemid = pesem.id WHERE albumid = %s", [int(id)])
@@ -493,7 +630,7 @@ def user(id):
         Zanri.append(naslov)
     cur.execute("SELECT pesem.id, pesem.naslov FROM album_pesem JOIN pesem ON album_pesem.pesemid = pesem.id WHERE albumid = %s", [int(id)])
     Pesmi = cur.fetchall()
-    return template("album.html", album=Album, dolzina=Dolzina, zanri=Zanri, pesmi=Pesmi, username=username_login, kupljeno=ze_kupljeno)
+    return template("album.html", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, album=Album, dolzina=Dolzina, zanri=Zanri, pesmi=Pesmi, username=username_login, kupljeno=ze_kupljeno)
 
 @post("/album/<id>/")
 def user(id):
@@ -516,16 +653,20 @@ def user(id):
         (username_login, ime_login, id_user) = get_user()
         cur.execute("SELECT id,naslov FROM dogodek JOIN udelezba_dogodka ON dogodek.id = udelezba_dogodka.dogodekid WHERE uporabnikid = %s AND dogodekid = %s", [int(id_user), int(id)])
         udelezeno = cur.fetchone()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
     else:
         username_login = None
         udelezeno = False
+        id_user=0
+        stanje=0
     cur.execute("SELECT * FROM dogodek WHERE id = %s", [int(id)])
     Dogodek = cur.fetchone()
     cur.execute('SELECT pesem.id, pesem.naslov FROM izvedene_pesmi JOIN pesem ON izvedene_pesmi.pesemid = pesem.id WHERE dogodekid = %s', [int(id)])
     Pesmi = cur.fetchall()
     cur.execute('SELECT lit_delo.id, lit_delo.naslov FROM izvedena_lit_dela JOIN lit_delo ON izvedena_lit_dela.litdeloid = lit_delo.id WHERE dogodekid = %s', [int(id)])
     Litdela = cur.fetchall()
-    return template("dogodek.html", dogodek=Dogodek, pesmi=Pesmi, litdela=Litdela, username = username_login, udelezeno=udelezeno)
+    return template("dogodek.html", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, dogodek=Dogodek, pesmi=Pesmi, litdela=Litdela, username = username_login, udelezeno=udelezeno)
 
 @post("/dogodek/<id>/")
 def user(id):
@@ -541,9 +682,10 @@ def user(id):
 def user(id):
     """Prikaži stran uporabnika"""
     # Ime uporabnika (hkrati preverimo, ali uporabnik sploh obstaja)
-    sprememba = request.forms.stanje
-    if sprememba:
-        cur.execute("UPDATE uporabnik SET stanje = stanje + %s WHERE id = %s", [sprememba, int(id)])
+    if get_user():
+        sprememba = request.forms.stanje
+        if sprememba and int(sprememba) > 0:
+            cur.execute("UPDATE uporabnik SET stanje = stanje + %s WHERE id = %s", [sprememba, int(id)])
     redirect('/user/'+str(id)+'/')
 
 

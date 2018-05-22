@@ -33,6 +33,17 @@
         </ul>
       </nav>
       <h1><a href="/index/" id="logo">Ponarejevalci denarja feel the rhythm</a></h1>
+	  <div id="uporabnik">
+		%if prijavljen_uporabnik is not None:
+		<h3><a href="/user/{{id_uporabnik}}/" style="text-decoration: none">{{prijavljen_uporabnik}}</a></h3>
+		<center class="color2">Stanje: {{stanje}}</center>
+		<a href="/logout/">Odjava</a>
+		%else:
+		<br>
+		<center><a href="/prijava/">Prijava</a> ali
+		<a href="/register/">Registracija</a></center>
+		%end
+	  </div>
     </header>
     <!--header end-->
     <div class="box">
@@ -56,7 +67,7 @@
 			  
 			  %if username is not None and not kupljeno:
 			  <form method="post">
-			  <input type="submit" value="Kupi album"> <br>
+			  <input type="submit" class="PosebniGumb" value="Kupi album"> <br>
 			  </form>
 			  %elif username is not None and kupljeno:
 			  <span class="color1">Album ste že kupili</span> <br>
@@ -64,14 +75,27 @@
 			  
 			  
 			  <p>
-			  <h3>Vsebuje pesmi</h3>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
+			  <h3>Vsebuje pesmi</h3> <input type="submit" class="DesniGumb" onclick="prikaziPesmi()" id="iz_alb_but" value="Prikaži"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_alb"; style = "display:none">
 				  %for id_pesmi,naslov in pesmi:
 					<tr>
 					   <td><a href="/song/{{id_pesmi}}/" style="text-decoration: none">{{naslov}}</a></td>
 					</tr>
 				  %end
 				  </table>
+				  <script>
+				  function prikaziPesmi() {
+    var x = document.getElementById("iz_alb");
+	var y = document.getElementById("iz_alb_but");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+		y.value = "Skrij";
+    } else {
+        x.style.display = "none";
+		y.value = "Prikaži";
+    }
+}
+</script>
               </p>				  
             <!-- <div class="cols marg_right1">
               <figure class="pad_bot1"><img src="images/page4_img1.jpg" alt=""></figure>

@@ -33,6 +33,17 @@
         </ul>
       </nav>
       <h1><a href="/index/" id="logo">Ponarejevalci denarja feel the rhythm</a></h1>
+	  <div id="uporabnik">
+		%if prijavljen_uporabnik is not None:
+		<h3><a href="/user/{{id_uporabnik}}/" style="text-decoration: none">{{prijavljen_uporabnik}}</a></h3>
+		<center class="color2">Stanje: {{stanje}}</center>
+		<a href="/logout/">Odjava</a>
+		%else:
+		<br>
+		<center><a href="/prijava/">Prijava</a> ali
+		<a href="/register/">Registracija</a></center>
+		%end
+	  </div>
     </header>
     <!--header end-->
     <div class="box">
@@ -78,8 +89,27 @@
 					  %end
 					  >Padajoče</option>
 			  </select> </div>
-			  <button type="submit" class="btn btn-default">Filter</button>
-			  <button type="reset" onclick="location.href='/dogodki/'" class="btn btn-default">Reset</button>
+			  %if prijavljen_uporabnik is not None:
+			  <div class = "wrapper"> <span> Prikaži: </span>  <select name="prikazi">
+					  <option value=""
+					  %if prikaz == "":
+					  selected="selected"
+					  %end
+					  >Vse</option>
+					  <option value="udelezeni" 
+					  %if prikaz == "udelezeni":
+					  selected="selected"
+					  %end
+					  >Udeležene</option>
+					  <option value="neudelezeni" 
+					  %if prikaz == "neudelezeni":
+					  selected="selected"
+					  %end
+					  >Neudeležene</option>
+			  </select> </div>
+			  %end
+			  <button type="submit" class="PosebniGumb">Filter</button>
+			  <button type="reset" onclick="location.href='/dogodki/'" class="PosebniGumb">Reset</button>
 		  </form>		   
 		
           <h2>Dogodki skupine</h2>
@@ -89,7 +119,6 @@
 			  <tr>
 				 <th>Naslov</th>
 				 <th>Datum</th>
-				 <th>Vrsta dogodka</th>
 			  </tr>
 			  </thead>
 			  %for (id_dogodka,naslov,datum,tip) in dogodki:
@@ -97,7 +126,6 @@
 				<tr>
 				   <td><a href="/dogodek/{{id_dogodka}}/" style="text-decoration: none">{{naslov}}</a></td>
 				   <td>{{datum}}</td>
-				   <td>{{tip}}</td>
 				</tr>
 			  %end
 			  </table>

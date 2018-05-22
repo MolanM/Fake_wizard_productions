@@ -12,9 +12,9 @@
             <div class="info">
               <h4>Kdo smo</h4>
               <ul>
+				<li><a href="/pesmi/">Pesmi</a></li>
+				<li><a href="/albumi/">Albumi</a></li>
                 <li><a href="/litdela/">Lit. dela</a></li>
-                <li><a href="/pesmi/">Pesmi</a></li>
-                <li><a href="/albumi/">Albumi</a></li>
                 <li><a href="/novice/">Novice</a></li>
               </ul>
             </div>
@@ -23,8 +23,8 @@
               <ul>
                 <li><a href="/prijava/">Prijava</a></li>
 				<li><a href="/register/">Registracija</a></li>
-				<li><a href="/uporabniki/">Vsi prijatelji</a></li>
-                <li><a href="/logout/">Izhod</a></li>
+				<li><a href="/uporabniki/">Vsi oboževalci</a></li>
+                <li><a href="/logout/">Odjava</a></li>
               </ul>
             </div>
             <div class="phone">

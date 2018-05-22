@@ -45,13 +45,13 @@
 		  <form id = "ContactForm" method="post" enctype="multipart/form-data">
 			<div>
 			  <div class = "wrapper"> <span> Uporabnisko ime: </span>
-				<input placeholder="Vnesi uporabnisko ime" type="text" name="uporabniskoime"/> 
+				<input placeholder="Vnesi uporabnisko ime" type="text" name="uporabniskoime" required> 
 			  </div>
 			  <div class = "wrapper"> <span> Geslo: </span> 
-				<input placeholder="Vnesi geslo" type="password" name="geslo"/>
+				<input placeholder="Vnesi geslo" type="password" name="geslo" required>
 			  </div>
-			  <input type="submit" value="Prijava">
-			  <input type="reset"> </div>
+			  <input type="submit" class="PosebniGumb" value="Prijava">
+			  <input type="reset" class="PosebniGumb" value="Reset"> </div>
 		  <!-- <button>Dodaj uporabnika</button> -->
 		  </form>
 		  %else:

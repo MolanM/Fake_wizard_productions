@@ -33,6 +33,17 @@
         </ul>
       </nav>
       <h1><a href="/index/" id="logo">Ponarejevalci denarja feel the rhythm</a></h1>
+	  <div id="uporabnik">
+		%if prijavljen_uporabnik is not None:
+		<h3><a href="/user/{{id_uporabnik}}/" style="text-decoration: none">{{prijavljen_uporabnik}}</a></h3>
+		<center class="color2">Stanje: {{stanje}}</center>
+		<a href="/logout/">Odjava</a>
+		%else:
+		<br>
+		<center><a href="/prijava/">Prijava</a> ali
+		<a href="/register/">Registracija</a></center>
+		%end
+	  </div>
     </header>
     <!--header end-->
     <div class="box">
@@ -53,33 +64,62 @@
 			  
 			  %if username is not None and not udelezeno:
 			  <form method="post">
-			  <input type="submit" value="Potrdi udeležbo"> <br>
+			  <input type="submit" class="PosebniGumb" value="Potrdi udeležbo"> <br>
 			  </form>
 			  %elif username is not None and udelezeno:
 			  <span class="color1">Za ta dogodek ste potrdili prisotnost!</span> <br>
 			  %end
 			  <br>
+			  <p>
 			  %if pesmi:
-			  <h3>Izvedene pesmi</h3>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
+			  <h3>Izvedene pesmi</h3> <input type="submit" class="DesniGumb" onclick="prikaziPesmi()" id="iz_pesmi_but" value="Prikaži"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_pesmi"; style = "display:none">
 				  %for (id_pesmi,naslov,) in pesmi:
 					<tr>
 					   <td><a href="/song/{{id_pesmi}}/" style="text-decoration: none">{{naslov}}</a></td>
 					</tr>
 				  %end
 				  </table>
+				  <script>
+function prikaziPesmi() {
+    var x = document.getElementById("iz_pesmi");
+	var y = document.getElementById("iz_pesmi_but");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+		y.value = "Skrij";
+    } else {
+        x.style.display = "none";
+		y.value = "Prikaži";
+    }
+}
+</script>
 			  %end
-			  
+			  </p>
+			  <p>
 			  %if litdela:
-			  <h3>Izvedena literarna dela:</h3>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
+			  <h3>Izvedena literarna dela:</h3> <input type="submit" class="DesniGumb" onclick="prikaziDela()" id="iz_lit_but" value="Prikaži"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_lit"; style = "display:none">
 				  %for (id_litdela,naslov,) in litdela:
 					<tr>
 					   <td><a href="/litdelo/{{id_litdela}}/" style="text-decoration: none">{{naslov}}</a></td>
 					</tr>
 				  %end
 				  </table>
+				  <script>
+				  function prikaziDela() {
+    var x = document.getElementById("iz_lit");
+	var y = document.getElementById("iz_lit_but");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+		y.value = "Skrij";
+    } else {
+        x.style.display = "none";
+		y.value = "Prikaži";
+    }
+}
+</script>
 			  %end
+			  </p>
           </div>
         </div>
       </article>

@@ -33,6 +33,17 @@
         </ul>
       </nav>
       <h1><a href="/index/" id="logo">Ponarejevalci denarja feel the rhythm</a></h1>
+	  <div id="uporabnik">
+		%if prijavljen_uporabnik is not None:
+		<h3><a href="/user/{{id_uporabnik}}/" style="text-decoration: none">{{prijavljen_uporabnik}}</a></h3>
+		<center class="color2">Stanje: {{stanje}}</center>
+		<a href="/logout/">Odjava</a>
+		%else:
+		<br>
+		<center><a href="/prijava/">Prijava</a> ali
+		<a href="/register/">Registracija</a></center>
+		%end
+	  </div>
     </header>
     <!--header end-->
     <div class="box">
@@ -58,21 +69,61 @@
 			  
 			  %if username is not None and not kupljeno:
 			  <form method="post">
-			  <input type="submit" value="Kupi pesem"> <br>
+			  <input type="submit" class="PosebniGumb" value="Kupi pesem"> <br>
 			  </form>
 			  %elif username is not None and kupljeno:
 			  <span class="color1">Pesem ste že kupili</span> <br>
 			  %end
 			  
 			  <p>
-			  <h3>Se nahaja v albumih:</h3>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%>
+			  %if albumi:
+			  <h3>Se nahaja v albumih:</h3> <input type="submit" class="DesniGumb" onclick="prikaziAlbume()" id="iz_alb_but" value="Prikaži"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_alb"; style = "display:none">
 				  %for id_albuma,naslov in albumi:
 					<tr>
 					   <td><a href="/album/{{id_albuma}}/" style="text-decoration: none">{{naslov}}</a></td>
 					</tr>
 				  %end
 				  </table>
+				  <script>
+				  function prikaziAlbume() {
+    var x = document.getElementById("iz_alb");
+	var y = document.getElementById("iz_alb_but");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+		y.value = "Skrij";
+    } else {
+        x.style.display = "none";
+		y.value = "Prikaži";
+    }
+}
+</script>
+			  %end
+			  </p>
+			  <p>
+			  %if dogodki:
+			  <h3>Je bila izvedena na dogodkih:</h3> <input type="submit" class="DesniGumb" onclick="prikaziDogodke()" id="iz_lit_but" value="Prikaži"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_lit"; style = "display:none">
+				  %for id_dogodka,naslov in dogodki:
+					<tr>
+					   <td><a href="/dogodek/{{id_dogodka}}/" style="text-decoration: none">{{naslov}}</a></td>
+					</tr>
+				  %end
+				  </table>
+				  <script>
+				  function prikaziDogodke() {
+    var x = document.getElementById("iz_lit");
+	var y = document.getElementById("iz_lit_but");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+		y.value = "Skrij";
+    } else {
+        x.style.display = "none";
+		y.value = "Prikaži";
+    }
+}
+</script>
+			  %end
 			  </p>
 			  
           </div>

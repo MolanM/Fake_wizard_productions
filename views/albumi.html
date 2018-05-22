@@ -33,6 +33,17 @@
         </ul>
       </nav>
       <h1><a href="/index/" id="logo">Ponarejevalci denarja feel the rhythm</a></h1>
+	  <div id="uporabnik">
+		%if prijavljen_uporabnik is not None:
+		<h3><a href="/user/{{id_uporabnik}}/" style="text-decoration: none">{{prijavljen_uporabnik}}</a></h3>
+		<center class="color2">Stanje: {{stanje}}</center>
+		<a href="/logout/">Odjava</a>
+		%else:
+		<br>
+		<center><a href="/prijava/">Prijava</a> ali
+		<a href="/register/">Registracija</a></center>
+		%end
+	  </div>
     </header>
     <!--header end-->
     <div class="box">
@@ -89,8 +100,27 @@
 					  %end
 					  >Padajoče</option>
 			  </select> </div>
-			  <button type="submit" class="btn btn-default">Filter</button>
-			  <button type="reset" onclick="location.href='/albumi/'" class="btn btn-default">Reset</button>
+			  %if prijavljen_uporabnik is not None:
+			  <div class = "wrapper"> <span> Prikaži: </span>  <select name="prikazi">
+					  <option value=""
+					  %if prikaz == "":
+					  selected="selected"
+					  %end
+					  >Vse</option>
+					  <option value="kupljene" 
+					  %if prikaz == "kupljene":
+					  selected="selected"
+					  %end
+					  >Kupljene</option>
+					  <option value="nekupljene" 
+					  %if prikaz == "nekupljene":
+					  selected="selected"
+					  %end
+					  >Nekupljene</option>
+			  </select> </div>
+			  %end
+			  <button type="submit" class="PosebniGumb">Filter</button>
+			  <button type="reset" onclick="location.href='/albumi/'" class="PosebniGumb">Reset</button>
 		  </form>		   
 		
           <h2>Albumi skupine</h2>

@@ -22,8 +22,8 @@ def ustvari_tabelo():
 	ime TEXT NOT NULL,
 	priimek TEXT NOT NULL,
 	rojstvo DATE NOT NULL,
-	naslov TEXT,
-	bio TEXT
+	naslov TEXT NOT NULL,
+	bio TEXT NOT NULL
 );
 
 CREATE TYPE spol AS ENUM ('moški', 'ženska', 'drugo');
@@ -52,8 +52,8 @@ CREATE TABLE album(
 	id SERIAL PRIMARY KEY,
 	naslov TEXT NOT NULL,
 	izdan DATE NOT NULL,
-	opis TEXT,
-	cena INTEGER
+	opis TEXT NOT NULL,
+	cena INTEGER NOT NULL
 );
 
 
@@ -63,7 +63,7 @@ CREATE TABLE pesem (
 	dolzina INTERVAL NOT NULL,
 	izdan DATE NOT NULL,
 	zanr INTEGER NOT NULL REFERENCES zanr(id),
-	cena INTEGER
+	cena INTEGER NOT NULL
 );
 
 CREATE TABLE kupil_pesem (
@@ -106,7 +106,7 @@ CREATE TABLE lit_delo (
 	id SERIAL PRIMARY KEY,
 	naslov TEXT NOT NULL,
 	izdan DATE NOT NULL,
-	zaloznik TEXT,
+	zaloznik TEXT NOT NULL,
 	tip INTEGER NOT NULL REFERENCES tip_lit_dela(id)
 );
 
@@ -283,18 +283,34 @@ def uvozi_podatke():
                 INSERT INTO album_pesem(pesemid, albumid) VALUES (3, 2);
                 INSERT INTO album_pesem(pesemid, albumid) VALUES (4, 2);
 
-                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, admin) VALUES ('Mozi111',"""+password_md5('123')+""", 999, 'Nejc', 'Černe', to_date('21-09-1996', 'dd-mm-yyyy'), 'moški', true);
-                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Yonstopir',""" +password_md5('Ooteebae4ai')+""", 100, 'Lucy', 'Boyle', to_date('25-10-1996', 'dd-mm-yyyy'), 'ženska');
-                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Thimpturaw',""" +password_md5('Ri8Ueyoo3oT')+""", 225, 'Eve', 'Fletcher', to_date('03-05-1996', 'dd-mm-yyyy'), 'ženska');
-                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Whistless',""" +password_md5('AhC0ahboog')+""", 35, 'Isabella', 'Atkins', to_date('11-11-1996', 'dd-mm-yyyy'), 'ženska');
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, admin) VALUES ('Mozi111','"""+password_md5('123')+"""', 999, 'Nejc', 'Černe', to_date('21-09-1996', 'dd-mm-yyyy'), 'moški', true);
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Yonstopir','""" +password_md5('Ooteebae4ai')+"""', 100, 'Lucy', 'Boyle', to_date('25-10-1996', 'dd-mm-yyyy'), 'ženska');
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Thimpturaw','""" +password_md5('Ri8Ueyoo3oT')+"""', 225, 'Eve', 'Fletcher', to_date('03-05-1996', 'dd-mm-yyyy'), 'ženska');
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Whistless','""" +password_md5('AhC0ahboog')+"""', 35, 'Isabella', 'Atkins', to_date('11-11-1996', 'dd-mm-yyyy'), 'ženska');
 
                 INSERT INTO dogodek(naslov, datum, tip) VALUES ('Predstavitveni koncert', to_date('13-06-2018', 'dd-mm-yyyy'), 'koncert');
+                INSERT INTO dogodek(naslov, datum, tip) VALUES ('Zabranjeno pušenje', to_date('31-01-1984', 'dd-mm-yyyy'), 'Veliki koncert');
+                INSERT INTO dogodek(naslov, datum, tip) VALUES ('Novi klinci', to_date('06-05-2018', 'dd-mm-yyyy'), 'Mikro koncert');
+                INSERT INTO dogodek(naslov, datum, tip) VALUES ('Bližnja prihodnost', to_date('20-06-2018', 'dd-mm-yyyy'), 'koncertino');
+                INSERT INTO dogodek(naslov, datum, tip) VALUES ('V daljavi', to_date('21-09-2020', 'dd-mm-yyyy'), 'Koncert upanja');
 
                 INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (1, 1);
                 INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (1, 2);
                 INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (1, 3);
                 INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (1, 4);
                 INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (1, 5);
+                INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (2, 3);
+                INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (2, 1);
+                INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (2, 5);
+                INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (3, 2);
+                INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (4, 3);
+                INSERT INTO izvedene_pesmi(dogodekid, pesemid) VALUES (5, 4);
+
+                INSERT INTO izvedena_lit_dela(dogodekid, litdeloid) VALUES (3, 1);
+                INSERT INTO izvedena_lit_dela(dogodekid, litdeloid) VALUES (4, 2);
+                INSERT INTO izvedena_lit_dela(dogodekid, litdeloid) VALUES (5, 3);
+                INSERT INTO izvedena_lit_dela(dogodekid, litdeloid) VALUES (4, 4);
+                INSERT INTO izvedena_lit_dela(dogodekid, litdeloid) VALUES (3, 5);
 
                 INSERT INTO kupil_album(albumid, uporabnikid) VALUES (1, 1);
                 INSERT INTO kupil_album(albumid, uporabnikid) VALUES (2, 2);
