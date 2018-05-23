@@ -58,6 +58,18 @@
 									<input type="text" name ="search" placeholder="Vnesi"
 									value = "{{iskanje}}" />
 								</div>
+              <div class = "wrapper"> <span> Način urejanja: </span>  <select name="nacin_u">
+					  <option value="ASC"
+					  %if na_ureditve == "ASC":
+					  selected="selected"
+					  %end
+					  >Naraščajoče</option>
+					  <option value="DESC" 
+					  %if na_ureditve == "DESC":
+					  selected="selected"
+					  %end
+					  >Padajoče</option>
+			  </select> </div>
 			  <button type="submit" class="PosebniGumb">Filter</button>
 			  <button type="reset" onclick="location.href='/uporabniki/'" class="PosebniGumb">Reset</button>
 		  </form>		  
@@ -74,7 +86,7 @@
 			 <!-- <th>Rojstni datum</th> -->
 			 <!-- <th>Spol</th> -->
 		  <!-- </tr> -->
-		  %for (id, uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, gru, admin) in uporabniki:
+		  %for (id, uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, email, gru, admin) in uporabniki:
 			<tr>
 			   <!-- <td>{{id}}</td> -->
 			   <td><a href="/user/{{id}}/">{{uporabnisko_ime}}</a></td>

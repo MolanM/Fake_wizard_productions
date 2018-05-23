@@ -68,12 +68,14 @@
 			  </form>
 			  %elif username is not None and udelezeno:
 			  <span class="color1">Za ta dogodek ste potrdili prisotnost!</span> <br>
+              %else:
+              <span class="color1">Za potrditev udelezbe na temu dogodku se morate prijaviti.</span> <br>
 			  %end
 			  <br>
 			  <p>
 			  %if pesmi:
-			  <h3>Izvedene pesmi</h3> <input type="submit" class="DesniGumb" onclick="prikaziPesmi()" id="iz_pesmi_but" value="Prikaži"/>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_pesmi"; style = "display:none">
+			  <h3>Izvedene pesmi</h3> <input type="submit" class="DesniGumb" onclick="prikaziPesmi()" id="iz_pesmi_but" value="Skrij"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_pesmi"; style = "display:block">
 				  %for (id_pesmi,naslov,) in pesmi:
 					<tr>
 					   <td><a href="/song/{{id_pesmi}}/" style="text-decoration: none">{{naslov}}</a></td>
@@ -97,8 +99,8 @@ function prikaziPesmi() {
 			  </p>
 			  <p>
 			  %if litdela:
-			  <h3>Izvedena literarna dela:</h3> <input type="submit" class="DesniGumb" onclick="prikaziDela()" id="iz_lit_but" value="Prikaži"/>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_lit"; style = "display:none">
+			  <h3>Izvedena literarna dela:</h3> <input type="submit" class="DesniGumb" onclick="prikaziDela()" id="iz_lit_but" value="Skrij"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_lit"; style = "display:block">
 				  %for (id_litdela,naslov,) in litdela:
 					<tr>
 					   <td><a href="/litdelo/{{id_litdela}}/" style="text-decoration: none">{{naslov}}</a></td>

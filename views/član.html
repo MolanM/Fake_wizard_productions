@@ -50,7 +50,7 @@
       <!--content -->
       <article id="content">
         <div class="wrapper">
-		%(id, uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, gru, admin) = uporabnik
+		%(id, uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, email, gru, admin) = uporabnik
           <h2>{{uporabnisko_ime}}</h2> 
           <div class="wrapper">
 			  <p class="pad_bot2">
@@ -68,6 +68,7 @@
 			  <span class="color2">{{ime}} {{priimek}}</span> <br> 
 			  <span class="color1">Spol: {{spol_uporabnika}}</span> <br>
 			  <span class="color1">Rojstni datum: {{rojstvo}}</span> <br>
+              <span class="color1">E-mail: {{email}}</span> <br>
 			  <span class="color1">Stanje: {{stanje}}</span> </p>
 			  %if prijavljen_uporabnik is not None: 
 			  <!--and prijavljen_uporabnik != uporabnisko_ime:-->
@@ -76,11 +77,13 @@
 			  <input type="submit" value="Ponaredi" class="PosebniGumb">
 			  <input type="reset" value="Resetiraj" class="PosebniGumb">
 			  </form>
+              %else:
+              <span class="color2">Za ponarejanje stanja uporabniku se morate prijaviti.</span> <br>
 			  %end
 			  <p>
 			  %if pesmi:
-				  <h3>Kupljene pesmi</h3> <input type="submit" class="DesniGumb" onclick="prikaziPesmi()" id="kup_pesmi_but" value="Prikaži"/>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="kup_pesmi"; style = "display:none">
+				  <h3>Kupljene pesmi</h3> <input type="submit" class="DesniGumb" onclick="prikaziPesmi()" id="kup_pesmi_but" value="Skrij"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="kup_pesmi"; style = "display:block">
 				  %for id_pesmi,naslov in pesmi:
 					<tr>
 					   <td><a href="/song/{{id_pesmi}}/" style="text-decoration: none">{{naslov}}</a></td>
@@ -104,8 +107,8 @@ function prikaziPesmi() {
 			  </p>
 			  <p>
 			  %if albumi:
-				  <h3>Kupljeni albumi</h3> <input type="submit" class="DesniGumb" onclick="prikaziAlbumi()" id="kup_albumi_but" value="Prikaži"/>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="kup_albumi"; style = "display:none">
+				  <h3>Kupljeni albumi</h3> <input type="submit" class="DesniGumb" onclick="prikaziAlbumi()" id="kup_albumi_but" value="Skrij"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="kup_albumi"; style = "display:block">
 				  %for id_albuma,naslov in albumi:
 					<tr>
 					   <td><a href="/album/{{id_albuma}}/" style="text-decoration: none">{{naslov}}</a></td>
@@ -129,8 +132,8 @@ function prikaziAlbumi() {
 			  </p>
 			  <p>
 			  %if dogodki:
-				  <h3>Udelezeni dogodki</h3> <input type="submit" class="DesniGumb" onclick="prikaziDogodki()" id="kup_dogodki_but" value="Prikaži"/>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="kup_dogodki"; style = "display:none">
+				  <h3>Udelezeni dogodki</h3> <input type="submit" class="DesniGumb" onclick="prikaziDogodki()" id="kup_dogodki_but" value="Skrij"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="kup_dogodki"; style = "display:block">
 				  %for id_dogodka,naslov in dogodki:
 					<tr>
 					   <td><a href="/dogodek/{{id_dogodka}}/" style="text-decoration: none">{{naslov}}</a></td>

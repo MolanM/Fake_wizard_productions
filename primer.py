@@ -295,6 +295,8 @@ def index():
     except: query['urejanje'] = ''
     try: test = query['nacin_u']
     except: query['nacin_u'] = ''
+    try: test = query['prikazi']
+    except: query['prikazi'] = ''
     if query['search'] != '':
         ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
@@ -452,13 +454,20 @@ def uporabnik():
     parameters = [] #vektor parametrov za sql stavke
     try: test = query['search']
     except: query['search'] = ''
+    try: test = query['nacin_u']
+    except: query['nacin_u'] = ''
     if query['search'] != '':
         ORstring += '''AND (LOWER(uporabnisko_ime) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
         print('%'+query['search']+'%')
-    ORstring += '''ORDER BY uporabnisko_ime'''
+    ORstring += ''' ORDER BY uporabnisko_ime'''
+    if query['nacin_u'] in ['ASC', 'DESC']:
+        ORstring += ''' ''' + query['nacin_u']
+    else:
+        query['nacin_u'] = 'ASC'
+        ORstring += ''' ''' + query['nacin_u']
     cur.execute(ORstring,parameters)
-    return template('uporabniki.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, napaka = "Vse OK", uporabniki=cur.fetchall(), iskanje=query['search'])
+    return template('uporabniki.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, napaka = "Vse OK", uporabniki=cur.fetchall(), iskanje=query['search'], na_ureditve=query['nacin_u'])
 
 @post('/register/')
 def uporabnik():
@@ -468,7 +477,8 @@ def uporabnik():
     #if request.forms.stanje:
     #    Stanje = request.forms.stanje
     #else:
-    Stanje = 1000
+    Stanje = 100
+    Email = request.forms.kontakt
     Ime = request.forms.ime
     Priimek = request.forms.priimek
     Rojstvo = request.forms.rojstvo
@@ -492,7 +502,7 @@ def uporabnik():
         #try:
             #print([str(UporabniskoIme), password_md5(Geslo1), int(Stanje), str(Ime), str(Priimek), str(Rojstvo), str(Spol)])
             #PraviRacun=int(RacunPython)
-            cur.execute("INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES (%s, %s, %s, %s, %s, to_date(%s, 'yyyy-mm-dd'), %s);", [str(UporabniskoIme), password_md5(Geslo1), int(Stanje), str(Ime), str(Priimek), str(Rojstvo), str(Spol)])
+            cur.execute("INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, email) VALUES (%s, %s, %s, %s, %s, to_date(%s, 'yyyy-mm-dd'), %s, %s);", [str(UporabniskoIme), password_md5(Geslo1), int(Stanje), str(Ime), str(Priimek), str(Rojstvo), str(Spol), str(Email)])
             #cur.execute("SELECT last_value FROM uporabnik_id_seq") #ID novega uporabnika
             #userid=cur.fetchone()
             #filename = str(userid[0]) + ext
@@ -598,12 +608,14 @@ def user(id):
         (username_login, ime_login, id_user) = get_user()
         cur.execute("SELECT id,naslov FROM pesem JOIN kupil_pesem ON pesem.id = kupil_pesem.pesemid WHERE uporabnikid = %s AND pesemid = %s", [int(id_user), int(id)])
         ze_kupljeno = cur.fetchone()
-        if not ze_kupljeno:
-            cur.execute("SELECT cena FROM pesem WHERE id = %s", [int(id)])
-            (cena,)=cur.fetchone()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+        cur.execute("SELECT cena FROM pesem WHERE id = %s", [int(id)])
+        (cena,)=cur.fetchone()
+        if not ze_kupljeno and stanje >= cena:
             cur.execute("UPDATE uporabnik SET stanje = stanje - %s WHERE id = %s", [int(cena), id_user])
             cur.execute("INSERT INTO kupil_pesem (pesemid, uporabnikid) VALUES (%s, %s)", [id, id_user])
-            redirect('/song/'+str(id)+'/')
+    redirect('/song/'+str(id)+'/')
 
 @route("/album/<id>/")
 def user(id):
@@ -638,12 +650,14 @@ def user(id):
         (username_login, ime_login, id_user) = get_user()
         cur.execute("SELECT id,naslov FROM album JOIN kupil_album ON album.id = kupil_album.albumid WHERE uporabnikid = %s AND albumid = %s", [int(id_user), int(id)])
         ze_kupljeno = cur.fetchone()
-        if not ze_kupljeno:
-            cur.execute("SELECT cena FROM album WHERE id = %s", [int(id)])
-            (cena,)=cur.fetchone()
+        cur.execute("SELECT cena FROM album WHERE id = %s", [int(id)])
+        (cena,)=cur.fetchone()
+        cur.execute("SELECT stanje FROM uporabnik WHERE id = %s", [int(id_user)])
+        (stanje,) = cur.fetchone()
+        if not ze_kupljeno and stanje >= cena:
             cur.execute("UPDATE uporabnik SET stanje = stanje - %s WHERE id = %s", [int(cena), id_user])
             cur.execute("INSERT INTO kupil_album (albumid, uporabnikid) VALUES (%s, %s)", [id, id_user])
-            redirect('/album/'+str(id)+'/')
+    redirect('/album/'+str(id)+'/')
 
 @route("/dogodek/<id>/")
 def user(id):

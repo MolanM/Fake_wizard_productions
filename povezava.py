@@ -37,6 +37,7 @@ CREATE TABLE uporabnik (
 	priimek TEXT NOT NULL,
 	rojstvo DATE NOT NULL,
 	spol_uporabnika spol NOT NULL,
+	email TEXT NOT NULL,
 	gru BOOLEAN DEFAULT false,
 	admin BOOLEAN DEFAULT false
 );
@@ -219,12 +220,12 @@ def uvozi_podatke():
                 INSERT INTO album(naslov, izdan, opis, cena) VALUES ('Kdo ponareja?', to_date('13-05-2018', 'dd-mm-yyyy'), 'Kolektiv je s tem albumom vstopil na sceno.', 0);
                 INSERT INTO album(naslov, izdan, opis, cena) VALUES ('Kopija prvega albuma', to_date('23-06-2018', 'dd-mm-yyyy'), 'Kolektiv je kopiral svoj prvi album.', 100);
 
-                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Zivim kot ponarejevalc', '2 minutes 7 seconds', to_date('21-10-2017', 'dd-mm-yyyy'), 2, 0);
-                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Ponaredki', '2 minutes 14 seconds', to_date('21-12-2017', 'dd-mm-yyyy'), 2, 0);
-                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Ponarejen svet', '2 minutes 38 seconds', to_date('15-01-2018', 'dd-mm-yyyy'), 2, 0);
-                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Vrednost originala', '2 minutes 12 seconds', to_date('26-02-2018', 'dd-mm-yyyy'), 2, 0);
-                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Banke znorijo', '1 minutes 25 seconds', to_date('11-03-2018', 'dd-mm-yyyy'), 3, 0);
-                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Sprosti se', '53 seconds', to_date('08-04-2018', 'dd-mm-yyyy'), 3, 0);
+                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Zivim kot ponarejevalc', '2 minutes 7 seconds', to_date('21-10-2017', 'dd-mm-yyyy'), 2, 25);
+                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Ponaredki', '2 minutes 14 seconds', to_date('21-12-2017', 'dd-mm-yyyy'), 2, 30);
+                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Ponarejen svet', '2 minutes 38 seconds', to_date('15-01-2018', 'dd-mm-yyyy'), 2, 10);
+                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Vrednost originala', '2 minutes 12 seconds', to_date('26-02-2018', 'dd-mm-yyyy'), 2, 10);
+                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Banke znorijo', '1 minutes 25 seconds', to_date('11-03-2018', 'dd-mm-yyyy'), 3, 50);
+                INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Sprosti se', '53 seconds', to_date('08-04-2018', 'dd-mm-yyyy'), 3, 80);
 
                 INSERT INTO tip_lit_dela(naslov) VALUES ('drama');
                 INSERT INTO tip_lit_dela(naslov) VALUES ('kratka zgodba');
@@ -283,10 +284,10 @@ def uvozi_podatke():
                 INSERT INTO album_pesem(pesemid, albumid) VALUES (3, 2);
                 INSERT INTO album_pesem(pesemid, albumid) VALUES (4, 2);
 
-                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, admin) VALUES ('Mozi111','"""+password_md5('123')+"""', 999, 'Nejc', 'Černe', to_date('21-09-1996', 'dd-mm-yyyy'), 'moški', true);
-                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Yonstopir','""" +password_md5('Ooteebae4ai')+"""', 100, 'Lucy', 'Boyle', to_date('25-10-1996', 'dd-mm-yyyy'), 'ženska');
-                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Thimpturaw','""" +password_md5('Ri8Ueyoo3oT')+"""', 225, 'Eve', 'Fletcher', to_date('03-05-1996', 'dd-mm-yyyy'), 'ženska');
-                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika) VALUES ('Whistless','""" +password_md5('AhC0ahboog')+"""', 35, 'Isabella', 'Atkins', to_date('11-11-1996', 'dd-mm-yyyy'), 'ženska');
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, email, admin) VALUES ('Mozi111','"""+password_md5('123')+"""', 999, 'Nejc', 'Černe', to_date('21-09-1996', 'dd-mm-yyyy'), 'moški', 'splintercell.savage@gmail.com',true);
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, email) VALUES ('Yonstopir','""" +password_md5('Ooteebae4ai')+"""', 100, 'Lucy', 'Boyle', to_date('25-10-1996', 'dd-mm-yyyy'), 'ženska', 'lucy.boyle@gmail.com');
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, email) VALUES ('Thimpturaw','""" +password_md5('Ri8Ueyoo3oT')+"""', 225, 'Eve', 'Fletcher', to_date('03-05-1996', 'dd-mm-yyyy'), 'ženska', 'eve.fletcher@gmail.com');
+                INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, email) VALUES ('Whistless','""" +password_md5('AhC0ahboog')+"""', 35, 'Isabella', 'Atkins', to_date('11-11-1996', 'dd-mm-yyyy'), 'ženska', 'isabella.atkins@gmail.com');
 
                 INSERT INTO dogodek(naslov, datum, tip) VALUES ('Predstavitveni koncert', to_date('13-06-2018', 'dd-mm-yyyy'), 'koncert');
                 INSERT INTO dogodek(naslov, datum, tip) VALUES ('Zabranjeno pušenje', to_date('31-01-1984', 'dd-mm-yyyy'), 'Veliki koncert');

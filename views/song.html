@@ -67,18 +67,22 @@
 			  <span class="color1">Zanr: {{ime_zanr}}</span> </p>
 			  <span class="color2">Cena: {{cena}}</span> <br>
 			  
-			  %if username is not None and not kupljeno:
+			  %if username is not None and not kupljeno and int(stanje) >= int(cena):
 			  <form method="post">
 			  <input type="submit" class="PosebniGumb" value="Kupi pesem"> <br>
 			  </form>
+              %elif username is not None and not kupljeno and int(stanje) < int(cena):
+              <span class="color1">Na računu nimate dovolj denarja, da bi pesem kupili.</span> <br>
 			  %elif username is not None and kupljeno:
 			  <span class="color1">Pesem ste že kupili</span> <br>
+              %else:
+              <span class="color1">Za nakup pesmi se morate prijaviti.</span> <br>
 			  %end
 			  
 			  <p>
 			  %if albumi:
-			  <h3>Se nahaja v albumih:</h3> <input type="submit" class="DesniGumb" onclick="prikaziAlbume()" id="iz_alb_but" value="Prikaži"/>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_alb"; style = "display:none">
+			  <h3>Se nahaja v albumih:</h3> <input type="submit" class="DesniGumb" onclick="prikaziAlbume()" id="iz_alb_but" value="Skrij"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_alb"; style = "display:block">
 				  %for id_albuma,naslov in albumi:
 					<tr>
 					   <td><a href="/album/{{id_albuma}}/" style="text-decoration: none">{{naslov}}</a></td>
@@ -102,8 +106,8 @@
 			  </p>
 			  <p>
 			  %if dogodki:
-			  <h3>Je bila izvedena na dogodkih:</h3> <input type="submit" class="DesniGumb" onclick="prikaziDogodke()" id="iz_lit_but" value="Prikaži"/>
-				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_lit"; style = "display:none">
+			  <h3>Je bila izvedena na dogodkih:</h3> <input type="submit" class="DesniGumb" onclick="prikaziDogodke()" id="iz_lit_but" value="Skrij"/>
+				  <table cellpadding="0" cellspacing="0"; border=1; width=100%; id="iz_lit"; style = "display:block">
 				  %for id_dogodka,naslov in dogodki:
 					<tr>
 					   <td><a href="/dogodek/{{id_dogodka}}/" style="text-decoration: none">{{naslov}}</a></td>

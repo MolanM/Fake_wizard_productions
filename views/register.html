@@ -42,29 +42,34 @@
 		
 		  %if not prijavljen_uporabnik:
 		  <h2>Registriraj novega uporabnika</h2>
+          <span class="color2">Uporabnisko ime naj bo dolgo od 4 do 15 znakov. Vsebuje lahko male in velike črke ter številke in podpičje. Geslo mora vsebovati vsaj eno veliko črko, vsaj eno malo črko in vsaj eno številko. </span> <br>
+          <br>
 		  <form id = "ContactForm" method="post" enctype="multipart/form-data">
 			<div>
 			  <div class = "wrapper"> <span> Uporabnisko ime: </span>
 			  <!-- TODO: prepreči posebne znake in presledke-->
-				<input placeholder="Vnesi uporabnisko ime" type="text" name="uporabniskoime"/> 
+				<input pattern="^[A-Za-z0-9_]{4,15}$" placeholder="Vnesi uporabnisko ime" type="text" name="uporabniskoime" required> 
 			  </div>
 			  <div class = "wrapper"> <span> Geslo: </span> 
-				<input placeholder="Vnesi geslo" type="password" name="geslo1"/>
+				<input pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$" placeholder="Vnesi geslo" type="password" name="geslo1" required>
 			  </div>
 			  <div class = "wrapper"> <span> Ponovi geslo: </span> 
-				<input placeholder="Ponovno vnesi geslo" type="password" name="geslo2"/>
+				<input placeholder="Ponovno vnesi geslo" type="password" name="geslo2" required>
 			  </div>
 			  <!--<div class = "wrapper"> <span> Stanje: </span> 
 				<input placeholder="Vnesi stanje" type="number" name="stanje"/> 
 			  </div>-->
 			  <div class = "wrapper"> <span> Ime: </span> 
-				<input placeholder="Vnesi ime" name="ime"/> 
+				<input pattern="[A-Za-z -]{1,32}" placeholder="Vnesi ime" name="ime" required> 
 			  </div>
 			  <div class = "wrapper"> <span> Priimek: </span> 
-				<input placeholder="Vnesi priimek" name="priimek"/> 
+				<input pattern="[A-Za-z -]{1,32}" placeholder="Vnesi priimek" name="priimek" required> 
+			  </div>
+              <div class = "wrapper"> <span> E-mail: </span> 
+				<input placeholder="Vnesi e-mail" type="email" name="kontakt" required> 
 			  </div>
 			  <div class = "wrapper"> <span> Rojstvo: </span> 
-				<input placeholder="Vnesi rojstni datum" type="date" name="rojstvo"/> 
+				<input placeholder="Vnesi rojstni datum" type="date" min="1900-01-01" name="rojstvo" required> 
 			  </div>
 			  <div class = "wrapper"> <span> Spol: </span>  <select name="spol">
 					  <option value="moški">moški</option>
