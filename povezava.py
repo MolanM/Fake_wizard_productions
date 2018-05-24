@@ -217,8 +217,8 @@ def uvozi_podatke():
                 INSERT INTO zanr(naslov) VALUES ('pop');
                 INSERT INTO zanr(naslov) VALUES ('elektro');
 
-                INSERT INTO album(naslov, izdan, opis, cena) VALUES ('Kdo ponareja?', to_date('13-05-2018', 'dd-mm-yyyy'), 'Kolektiv je s tem albumom vstopil na sceno.', 0);
-                INSERT INTO album(naslov, izdan, opis, cena) VALUES ('Kopija prvega albuma', to_date('23-06-2018', 'dd-mm-yyyy'), 'Kolektiv je kopiral svoj prvi album.', 100);
+                INSERT INTO album(naslov, izdan, opis, cena) VALUES ('Kdo ponareja?', to_date('13-05-2018', 'dd-mm-yyyy'), 'Kolektiv je s tem albumom vstopil na sceno.', 1000);
+                INSERT INTO album(naslov, izdan, opis, cena) VALUES ('Kopija prvega albuma', to_date('23-06-2018', 'dd-mm-yyyy'), 'Kolektiv je kopiral svoj prvi album.', 900);
 
                 INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Zivim kot ponarejevalc', '2 minutes 7 seconds', to_date('21-10-2017', 'dd-mm-yyyy'), 2, 25);
                 INSERT INTO pesem(naslov, dolzina, izdan, zanr, cena) VALUES ('Ponaredki', '2 minutes 14 seconds', to_date('21-12-2017', 'dd-mm-yyyy'), 2, 30);
@@ -312,9 +312,6 @@ def uvozi_podatke():
                 INSERT INTO izvedena_lit_dela(dogodekid, litdeloid) VALUES (5, 3);
                 INSERT INTO izvedena_lit_dela(dogodekid, litdeloid) VALUES (4, 4);
                 INSERT INTO izvedena_lit_dela(dogodekid, litdeloid) VALUES (3, 5);
-
-                INSERT INTO kupil_album(albumid, uporabnikid) VALUES (1, 1);
-                INSERT INTO kupil_album(albumid, uporabnikid) VALUES (2, 2);
 
                 INSERT INTO kupil_pesem(pesemid, uporabnikid) VALUES (1, 3);
                 INSERT INTO kupil_pesem(pesemid, uporabnikid) VALUES (1, 4);

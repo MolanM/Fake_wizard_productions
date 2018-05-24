@@ -657,6 +657,13 @@ def user(id):
         if not ze_kupljeno and stanje >= cena:
             cur.execute("UPDATE uporabnik SET stanje = stanje - %s WHERE id = %s", [int(cena), id_user])
             cur.execute("INSERT INTO kupil_album (albumid, uporabnikid) VALUES (%s, %s)", [id, id_user])
+            cur.execute("SELECT pesem.id FROM album_pesem JOIN pesem ON album_pesem.pesemid = pesem.id WHERE albumid = %s", [int(id)])
+            pesmi = cur.fetchall()
+            for (pesem_id,) in pesmi:
+                cur.execute("SELECT id,naslov FROM pesem JOIN kupil_pesem ON pesem.id = kupil_pesem.pesemid WHERE uporabnikid = %s AND pesemid = %s", [int(id_user), int(pesem_id)])
+                ze_kupljeno = cur.fetchone()
+                if not ze_kupljeno:
+                    cur.execute("INSERT INTO kupil_pesem (pesemid, uporabnikid) VALUES (%s, %s)", [int(pesem_id), id_user])
     redirect('/album/'+str(id)+'/')
 
 @route("/dogodek/<id>/")
