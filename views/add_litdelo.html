@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Ponarejevalci denarja</title>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="all">
+<link rel="stylesheet" href="/static/css/layout.css" type="text/css" media="all">
+<link rel="stylesheet" href="/static/css/style.css" type="text/css" media="all">
+<!-- <script src="js/jquery-1.6.js" ></script>
+<script src="js/cufon-yui.js"></script>
+<script src="js/cufon-replace.js"></script>
+<script src="js/NewsGoth_BT_400.font.js"></script>
+<script src="js/NewsGoth_BT_700.font.js"></script>
+<script src="js/atooltip.jquery.js"></script> -->
+<!--[if lt IE 9]>
+<script src="js/html5.js"></script>
+<link rel="stylesheet" href="css/ie.css" type="text/css" media="all">
+<![endif]-->
+</head>
+<body id="page6">
+<div class="bg1">
+  <div class="main">
+    <!--header -->
+    <header>
+      <nav>
+        <ul id="menu">
+          <li><a href="/index/">Skupina</a></li>
+          <li><a href="/dogodki/">Dogodki</a></li>
+          <li><a href="/galerija/">Galerija</a></li>
+          <li><a href="/clani/">Člani</a></li>
+          <li><a href="/novice/">Novice</a></li>
+          <li><a href="/kontakt/">Kontakt</a></li>
+        </ul>
+      </nav>
+      <h1><a href="/index/" id="logo">Ponarejevalci denarja feel the rhythm</a></h1>
+	  <div id="uporabnik">
+		%if prijavljen_uporabnik is not None:
+		<h3><a href="/user/{{id_uporabnik}}/" style="text-decoration: none">{{prijavljen_uporabnik}}</a></h3>
+		<center class="color2">Stanje: {{stanje}}</center>
+		<a href="/logout/">Odjava</a>
+		%else:
+		<br>
+		<center><a href="/prijava/">Prijava</a> ali
+		<a href="/register/">Registracija</a></center>
+		%end
+	  </div>
+    </header>
+    <!--header end-->
+    <div class="box">
+      <!--content -->
+      <article id="content">
+        <div class="wrapper">
+		
+		  %if admin:
+		  <a href="/add_tip/" class="PosebniGumb">Dodaj tip</a>
+		  <h2>Dodaj novo lit. delo</h2>
+		  <form id = "ContactForm" method="post" enctype="multipart/form-data">
+			<div>
+			  <div class = "wrapper"> <span> Naslov: </span>
+				<input placeholder="Vnesi naslov" type="text" name="naslov" required> 
+			  </div>
+			  <div class = "wrapper"> <span> Izdan: </span> 
+				<input placeholder="Vnesi datum" type="date" min="1900-01-01" name="izdan" required> 
+			  </div>
+			  <div class = "wrapper"> <span> Zaloznik: </span>
+				<input placeholder="Vnesi zaloznika" type="text" name="zaloznik" required> 
+			  </div>
+			  <div class = "wrapper"> <span> Tip: </span>  <select name="tip" required>
+					  %for (id_tip, ime_tip,) in tipi:
+					  %if int(id_tip) == 1:
+					  <option value="{{id_tip}}" selected="selected">{{ime_tip}}</option>
+					  %else:
+					  <option value="{{id_tip}}">{{ime_tip}}</option>
+					  %end
+					  %end
+					 </select> </div>
+			  <div class = "wrapper"> <span> Avtorji dela: </span>  <select name="avtorl" multiple required>
+					  %for (id_clan, ime_clan,) in clani:
+					  <option value="{{id_clan}}">{{ime_clan}}</option>
+					  %end
+					 </select> </div>
+			  <input type="submit" class="PosebniGumb" value="Dodaj">
+			  <input class="PosebniGumb" type="reset" value="Reset"> </div>
+		  </form>
+		  %elif prijavljen_uporabnik:
+		  <h2>Pozdravljeni {{prijavljen_uporabnik}}!</h2>
+		  %else:
+		  <h2>Pozdravljeni!</h2>
+		  %end
+		  <font color={{barva}}>{{napaka}}</font> 
+		  
+        </div>
+      </article>
+      <!--content end-->
+      <!--footer -->
+      <footer>
+	  %include("spodaj.tpl")
+      </footer>
+      <!--footer end-->
+    </div>
+  </div>
+</div>
+<script>Cufon.now();</script>
+</body>
+</html>

@@ -50,6 +50,10 @@
       <!--content -->
       <article id="content">
         <div class="wrapper">
+			%if admin:
+			<a href="/add_pesem/" class="PosebniGumb">Dodaj pesem</a>
+			<a href="/add_zanr/" class="PosebniGumb">Dodaj zanr</a>
+			%end
 		   <h2>Poišči pesem</h2>	
             <form id = "ContactForm" action=".">
 			<div>
