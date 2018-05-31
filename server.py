@@ -408,7 +408,7 @@ def index():
         (username_login, ime_login, id_user) = get_user()
         return template('register.html', napaka="Ste že prijavljeni!", barva="red", prijavljen_uporabnik=username_login)
     else:
-        return template('register.html', napaka="Vse OK", barva="green", prijavljen_uporabnik=None)
+        return template('register.html', napaka="", barva="green", prijavljen_uporabnik=None)
 
 @get('/prijava/')
 def index():
@@ -416,7 +416,7 @@ def index():
         (username_login, ime_login, id_user) = get_user()
         return template('prijava.html', napaka="Ste že prijavljeni!", barva="red", prijavljen_uporabnik=username_login)
     else:
-        return template('prijava.html', napaka="Vse OK", barva="green", prijavljen_uporabnik=None)
+        return template('prijava.html', napaka="", barva="green", prijavljen_uporabnik=None)
 
 @get("/logout/")
 def logout():
@@ -521,7 +521,7 @@ def uporabnik():
             #Slika.filename = filename
             #save_path = os.path.join('static','images','uploads',filename)
             #Slika.save(save_path) # appends upload.filename automatically
-            redirect('/register/')
+            redirect('/prijava/')
             #cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
             #return template('register.html', x=0, napaka = "Vse OK", barva="red", uporabniki=cur)
         #except:
