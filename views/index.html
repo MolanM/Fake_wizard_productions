@@ -1,67 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<title>Ponarejevalci denarja</title>
-<meta charset="utf-8">
-<link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="all">
-<link rel="stylesheet" href="/static/css/layout.css" type="text/css" media="all">
-<link rel="stylesheet" href="/static/css/style.css" type="text/css" media="all">
-<!-- <script src="js/jquery-1.6.js" ></script>
-<script src="js/cufon-yui.js"></script>
-<script src="js/cufon-replace.js"></script>
-<script src="js/NewsGoth_BT_400.font.js"></script>
-<script src="js/NewsGoth_BT_700.font.js"></script>
-<script src="js/jcarousellite.js"></script>
-<script src="js/jquery.easing.1.3.js"></script>
-<script src="js/jquery.mousewheel.js"></script>
-<script src="js/atooltip.jquery.js"></script -->
-<!--[if lt IE 9]>
-<script src="js/html5.js"></script>
-<link rel="stylesheet" href="css/ie.css" type="text/css" media="all">
-<![endif]-->
-</head>
-<body id="page1">
-<div class="bg1">
-  <div class="main">
-    <!--header -->
-    <header>
-      <nav>
-        <ul id="menu">
-          <li class="active"><a href="/index/">Skupina</a></li>
-          <li><a href="/dogodki/">Dogodki</a></li>
-          <li><a href="/galerija/">Galerija</a></li>
-          <li><a href="/clani/">Člani</a></li>
-          <li><a href="/novice/">Novice</a></li>
-          <li><a href="/kontakt/">Kontakt</a></li>
-        </ul>
-      </nav>
-      <h1><a href="/index/" id="logo">Ponarejevalci denarja feel the rhythm</a></h1>
-	  <div id="uporabnik">
-		%if prijavljen_uporabnik is not None:
-		<h3><a href="/user/{{id_uporabnik}}/" style="text-decoration: none">{{prijavljen_uporabnik}}</a></h3>
-		<center class="color2">Stanje: {{stanje}}</center>
-		<a href="/logout/">Odjava</a>
-		%else:
-		<br>
-		<center><a href="/prijava/">Prijava</a> ali
-		<a href="/register/">Registracija</a></center>
-		%end
-	  </div>
-    </header>
-    <!--header end-->
-    <div class="box">
-      <!--content -->
-      <article id="content">
+%rebase('base.tpl', aktivna='Skupina', prijavljen_uporabnik=prijavljen_uporabnik, stanje=stanje, stran='', id_uporabnik=id_uporabnik)
         <div class="wrapper pad_bot1">
           <section class="col1">
-		    %if prijavljen_uporabnik is not None:
-              <h2 id="welcom">Pozdravljen {{prijavljen_uporabnik}}!</h2>
+		    %if prijavljen_uporabnik is not None and spol == 'ženska':
+              <h2 id="welcom">Pozdravljena {{prijavljen_uporabnik}}!</h2>
+			%elif prijavljen_uporabnik is not None:
+			  <h2 id="welcom">Pozdravljen {{prijavljen_uporabnik}}!</h2>
 			%else:
 			  <h2 id="welcom">Pozdravljen ponarejevalec!</h2>
 			%end
             <p class="color1">Glasbena skupina Ponarejevalci denarja je najperspektivnejša glasbena skupina v tem delu Evrope.</p>
             <p class="pad_bot1">Skupina je v nastajanju in temelji na formalni predpostavki o možnosti, da je mogoče preseči nepredstavljive meje popularnosti. Slog in umetniška vrednost skupine presegata vsa pričakovanja.</p>
-            <a href="https://www.google.com/search?client=firefox-b&ei=D4rwWrKfI8G8kwXbu6hI&q=Glasbena+skupina+Ponarejevalci+denarja&oq=Glasbena+skupina+Ponarejevalci+denarja&gs_l=psy-ab.3...7274.14390.0.14914.29.23.6.0.0.0.190.2330.16j6.22.0....0...1c.1.64.psy-ab..5.1.110...0i13i30k1j0i7i5i30k1.0.EcTkr5Bu7H0" class="link1">Preberi več</a> </section>
+            <a href="https://www.facebook.com/ponarejevalci/" class="link1">Poglej našo Facebook stran</a> </section>
           <section class="col1 pad_left1">
 		  <h2>Zadnji dogodki</h2>
           <div id="gallery1">
@@ -87,39 +37,6 @@
 			  %end
 			  </ul>
           </div>
-		  <!-- <h2>Latest Events</h2>
-            <div id="gallery1">
-              <ul>
-                <li> <span class="dropcap_1">30<span>august</span></span>
-                  <p><span class="color1">Lorem ipsum dolor sit amet</span><br>
-                    adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.<br>
-                    <a href="#" class="link1">View Details</a></p>
-                </li>
-                <li> <span class="dropcap_1">26<span>august</span></span>
-                  <p><span class="color1">Ut enim ad minim veniam nostrud</span><br>
-                    Exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. <br>
-                    <a href="#" class="link1">View Details</a></p>
-                </li>
-              </ul>
-            </div>
-            <a href="#" class="next"></a> <a href="#" class="prev"></a> </section>
-        </div>
-        <div class="wrapper">
-          <h2>Next Party</h2>
-          <div class="wrapper">
-            <figure class="left marg_right1"><a href="#"><img src="/static/images/banner1.jpg" alt=""></a></figure>
-            <h3>Best RNB from Europe</h3>
-            <p class="pad_bot1">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo:</p>
-            <ul class="list1 pad_bot1">
-              <li><a href="#">Ut enim ad minima veniam, quis nostrum exercitationem ullam</a></li>
-              <li><a href="#">Quis autem vel eum iure reprehenderit qui in voluptate</a></li>
-              <li><a href="#">Velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum</a></li>
-              <li><a href="#">Fugiat quo voluptas nulla pariatur lorem ipsum dolor sit amet</a></li>
-            </ul>
-            <p>Inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate voluptatem quia voluptas sit aspernatur.</p>
-          </div>
-		</div> -->
-            
 		</section>
         </div>
 		<div class="wrapper pad_bot1">
@@ -165,31 +82,3 @@
           </div>
 		</section>
         </div>
-      </article>
-      <!--content end-->
-      <!--footer -->
-      <footer>
-	  %include("spodaj.tpl")
-      </footer>
-      <!--footer end-->
-    </div>
-  </div>
-</div>
-<script>
-$(document).ready(function () {
-    //galerija
-    $("#gallery1").jCarouselLite({
-        btnNext: ".next",
-        btnPrev: ".prev",
-        mouseWheel: true,
-        vertical: true,
-        circular: true,
-        visible: 2,
-        speed: 600,
-        easing: 'easeOutCirc'
-    });
-    Cufon.now();
-})
-</script>
-</body>
-</html>

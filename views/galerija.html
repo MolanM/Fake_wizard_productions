@@ -1,6 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
 <style>
 body {font-family: Arial, Helvetica, sans-serif;}
 
@@ -90,44 +88,7 @@ body {font-family: Arial, Helvetica, sans-serif;}
     }
 }
 </style>
-<title>Ponarejevalci denarja | Galerija</title>
-<meta charset="utf-8">
-<link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="all">
-<link rel="stylesheet" href="/static/css/layout.css" type="text/css" media="all">
-<link rel="stylesheet" href="/static/css/style.css" type="text/css" media="all">
-</head>
-<body id="page3">
-<div class="bg1">
-  <div class="main">
-    <!--header -->
-    <header>
-      <nav>
-        <ul id="menu">
-          <li><a href="/index/">Skupina</a></li>
-          <li><a href="/dogodki/">Dogodki</a></li>
-          <li class="active"><a href="/galerija/">Galerija</a></li>
-          <li><a href="/clani/">Člani</a></li>
-          <li><a href="/novice/">Novice</a></li>
-          <li><a href="/kontakt/">Kontakt</a></li>
-        </ul>
-      </nav>
-      <h1><a href="/index/" id="logo">Ponarejevalci denarja feel the rhythm</a></h1>
-	  <div id="uporabnik">
-		%if prijavljen_uporabnik is not None:
-		<h3><a href="/user/{{id_uporabnik}}/" style="text-decoration: none">{{prijavljen_uporabnik}}</a></h3>
-		<center class="color2">Stanje: {{stanje}}</center>
-		<a href="/logout/">Odjava</a>
-		%else:
-		<br>
-		<center><a href="/prijava/">Prijava</a> ali
-		<a href="/register/">Registracija</a></center>
-		%end
-	  </div>
-    </header>
-    <!--header end-->
-    <div class="box">
-      <!--content -->
-      <article id="content">
+%rebase('base.tpl', aktivna='Galerija', prijavljen_uporabnik=prijavljen_uporabnik, stanje=stanje, stran='', id_uporabnik=id_uporabnik)
         <div class="wrapper">
           <h2>Ponarejevalci denarja</h2>
           <dl class="folio">
@@ -221,15 +182,3 @@ span.onclick = function() {
     modal.style.display = "none";
 }
 </script>
-      </article>
-      <!--content end-->
-      <!--footer -->
-      <footer>
-	  %include("spodaj.tpl")
-      </footer>
-      <!--footer end-->
-    </div>
-  </div>
-</div>
-</body>
-</html>
