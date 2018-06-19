@@ -15,6 +15,7 @@ def password_md5(s):
     h.update(s.encode('utf-8'))
     return h.hexdigest()
 
+# ustvari tabele za naso stran
 def ustvari_tabelo():
     cur.execute("""
         CREATE TABLE clan (
@@ -179,6 +180,7 @@ GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO javnost;
     """)
     conn.commit()
 
+# izbrise tabele
 def pobrisi_tabelo():
     cur.execute("""
         DROP TABLE IF EXISTS clan CASCADE;
@@ -206,7 +208,7 @@ def pobrisi_tabelo():
     """)
     conn.commit()
 
-
+# uvozi nekaj osnovnih podatkov v tabele
 def uvozi_podatke():
     cur.execute("""
                 INSERT INTO clan(id, ime, priimek, rojstvo, naslov, bio) VALUES (42, 'Marko', 'Miocic', to_date('23-04-1996', 'dd-mm-yyyy'), 'Domzale', 'Hodil na gimnazijo Bežigrad.');
@@ -327,6 +329,7 @@ def uvozi_podatke():
             """)
     conn.commit()
 
+# uredi pravice za dostop do baze
 def pravice():
     cur.execute("""
         GRANT ALL ON ALL TABLES IN SCHEMA public TO martinm;
@@ -339,26 +342,6 @@ def pravice():
         GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO javnost;
     """)
     conn.commit()
-
-
-    
- #def uvozi_podatke():
- #   with open("obcine.csv") as f:
- #       rd = csv.reader(f)
- #       next(rd) # izpusti naslovno vrstico
- #       for r in rd:
- #           r = [None if x in ('', '-') else x for x in r]
- #           cur.execute("""
- #               INSERT INTO obcina
- #               (ime, povrsina, prebivalstvo, gostota, naselja,
- #                ustanovitev, pokrajina, stat_regija, odcepitev)
- #               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
- #               RETURNING id
- #           """, r)
- #           rid, = cur.fetchone()
- #           print("Uvožena občina %s z ID-jem %d" % (r[0], rid))
- #   conn.commit()
-
 
 conn = psycopg2.connect(database=auth.db, host=auth.host, user=auth.user, password=auth.password)
 cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)

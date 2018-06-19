@@ -27,8 +27,8 @@ def password_md5(s):
 
 def get_user(auto_login = False):
     """Poglej cookie in ugotovi, kdo je prijavljeni uporabnik,
-       vrni njegov username in ime. Če ni prijavljen, presumeri
-       na stran za prijavo ali vrni None (advisno od auto_login).
+        vrni njegov username, ime, id, stanje in podatek, če je admin. Če ni prijavljen,
+       presumeri na stran za prijavo ali vrni None (advisno od auto_login).
     """
     # Dobimo username iz piškotka
     username = request.get_cookie('username', secret=secret)
@@ -55,6 +55,7 @@ def get_user(auto_login = False):
 
 @route("/")
 def main():
+    """Preusmeri na index"""
     redirect("/index/")
 
 @route("/static/<filename:path>")
@@ -76,39 +77,30 @@ def vsi_dogodki():
     query = dict(request.query)
     mnozica=''
     (username_login, ime_login, id_user, stanje, admin) = get_user()
+    #preverimo, če je uporabnik prijavljen in želi filtrirati po udelezenih dogodkih
     if username_login:
-        cur.execute("SELECT dogodekid FROM udelezba_dogodka WHERE uporabnikid = %s", [int(id_user)])
-        UdelezeniDogodki = cur.fetchall()
-        try: test = query['prikazi']
-        except: query['prikazi'] = ''
+        if 'prikazi' not in query:
+            query['prikazi'] = ''
         if query['prikazi'] == 'udelezeni':
             mnozica=''') INTERSECT (SELECT id,naslov,datum,tip FROM dogodek JOIN udelezba_dogodka ON udelezba_dogodka.dogodekid = dogodek.id WHERE uporabnikid = %s) '''
         elif query['prikazi'] == 'neudelezeni':
             mnozica=''') EXCEPT (SELECT id,naslov,datum,tip FROM dogodek JOIN udelezba_dogodka ON udelezba_dogodka.dogodekid = dogodek.id WHERE uporabnikid = %s) '''
-    else:
-        UdelezeniDogodki = None
+    
     ORstring='''((SELECT * FROM dogodek WHERE 1=1\n'''
-    parameters = []
-    try: test = query['search']
-    except: query['search'] = ''
-    try: test = query['spodnji']
-    except: query['spodnji'] = ''
-    try: test = query['zgornji']
-    except: query['zgornji'] = ''
-    try: test = query['urejanje']
-    except: query['urejanje'] = ''
-    try: test = query['nacin_u']
-    except: query['nacin_u'] = ''
-    try: test = query['prikazi']
-    except: query['prikazi'] = ''
-    if query['search'] != '':
+    parameters = [] #vektor parametrov za sql stavke
+    #preverimo, kateri parametri niso izpolnjeni
+    for parameter in ['search', 'spodnji', 'zgornji', 'urejanje', 'nacin_u', 'prikazi']:
+        if parameter not in query:
+            query[parameter] = ''
+    
+    if query['search'] != '': #iskanje po ključnih besedah
         ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
         print('%'+query['search']+'%')
-    if query['spodnji'] != '':
+    if query['spodnji'] != '':#filter za najmanjši datum
         ORstring += '''AND (datum >= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['spodnji']]
-    if query['zgornji'] != '':
+    if query['zgornji'] != '':#filter za največji datum
         ORstring += '''AND (datum <= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['zgornji']]
 
@@ -118,19 +110,21 @@ def vsi_dogodki():
     else:
         ORstring += ''') '''
 
-    if query['urejanje'] in ['naslov', 'datum']:
+    if query['urejanje'] in ['naslov', 'datum']: #po čem urejamo
         ORstring += ''') ORDER BY ''' + query['urejanje']
     else:
-        query['urejanje'] = 'datum'
+        query['urejanje'] = 'datum' #če ni določeno, bomo uredili po datumu
         ORstring += ''') ORDER BY ''' + query['urejanje']
-    if query['nacin_u'] in ['ASC', 'DESC']:
+    
+    if query['nacin_u'] in ['ASC', 'DESC']: #kako urejamo
         ORstring += ''' ''' + query['nacin_u']
     else:
-        query['nacin_u'] = 'DESC'
+        query['nacin_u'] = 'DESC' #če ni določeno, bomo uredili padajoče
         ORstring += ''' ''' + query['nacin_u']
+    
     cur.execute(ORstring,parameters)
     Dogodki=cur.fetchall()
-    return template('dogodki.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, username=username_login, dogodki=Dogodki, udelezeni=UdelezeniDogodki, prikaz=query['prikazi'], iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'], admin=admin)
+    return template('dogodki.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, username=username_login, dogodki=Dogodki, prikaz=query['prikazi'], iskanje=query['search'], sp_datum=query['spodnji'], zg_datum=query['zgornji'], ureditev=query['urejanje'], na_ureditve=query['nacin_u'], admin=admin)
 
 @get('/litdela/')
 def vsa_litdela():
@@ -140,25 +134,21 @@ def vsa_litdela():
     ORstring='''
         SELECT * FROM lit_delo
         WHERE 1=1\n'''
-    parameters = [] #vektor parametrov za sql stavke
-    try: test = query['search']
-    except: query['search'] = ''
-    try: test = query['spodnji']
-    except: query['spodnji'] = ''
-    try: test = query['zgornji']
-    except: query['zgornji'] = ''
-    try: test = query['urejanje']
-    except: query['urejanje'] = ''
-    try: test = query['nacin_u']
-    except: query['nacin_u'] = ''
-    if query['search'] != '':
+    parameters = []
+
+    #preverimo, kateri parametri niso izpolnjeni
+    for parameter in ['search', 'spodnji', 'zgornji', 'urejanje', 'nacin_u']:
+        if parameter not in query:
+            query[parameter] = ''
+    
+    if query['search'] != '': #ključne besede
         ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
         print('%'+query['search']+'%')
-    if query['spodnji'] != '':
+    if query['spodnji'] != '': #najmanjši datum
         ORstring += '''AND (izdan >= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['spodnji']]
-    if query['zgornji'] != '':
+    if query['zgornji'] != '': #največji datum
         ORstring += '''AND (izdan <= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['zgornji']]
     if query['urejanje'] in ['naslov', 'izdan']:
@@ -181,9 +171,10 @@ def vsi_albumi():
     query = dict(request.query)
     mnozica=''
     (username_login, ime_login, id_user, stanje, admin) = get_user()
+    #preverimo, če je uporabnik prijavljen in želi filtrirati po kupljenih oz. ne-kupljenih albumih
     if username_login:
-        try: test = query['prikazi']
-        except: query['prikazi'] = ''
+        if 'prikazi' not in query:
+            query['prikazi'] = ''
         if query['prikazi'] == 'kupljene':
             mnozica=''') INTERSECT (SELECT id,naslov,izdan,opis,cena FROM album JOIN kupil_album ON kupil_album.albumid = album.id WHERE uporabnikid = %s) '''
         elif query['prikazi'] == 'nekupljene':
@@ -191,23 +182,12 @@ def vsi_albumi():
     ORstring='''
         ((SELECT * FROM album
         WHERE 1=1\n'''
-    parameters = [] #vektor parametrov za sql stavke
-    try: test = query['search']
-    except: query['search'] = ''
-    try: test = query['spodnji']
-    except: query['spodnji'] = ''
-    try: test = query['zgornji']
-    except: query['zgornji'] = ''
-    try: test = query['sp_cena']
-    except: query['sp_cena'] = ''
-    try: test = query['zg_cena']
-    except: query['zg_cena'] = ''
-    try: test = query['urejanje']
-    except: query['urejanje'] = ''
-    try: test = query['nacin_u']
-    except: query['nacin_u'] = ''
-    try: test = query['prikazi']
-    except: query['prikazi'] = ''
+    parameters = []
+    #preverimo, kateri parametri niso izpolnjeni
+    for parameter in ['search', 'spodnji', 'zgornji', 'sp_cena', 'zg_cena', 'urejanje', 'nacin_u', 'prikazi']:
+        if parameter not in query:
+            query[parameter] = ''
+    
     if query['search'] != '':
         ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
@@ -252,8 +232,8 @@ def vse_pesmi():
     mnozica=''
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     if username_login:
-        try: test = query['prikazi']
-        except: query['prikazi'] = ''
+        if 'prikazi' not in query:
+            query['prikazi'] = ''
         if query['prikazi'] == 'kupljene':
             mnozica=''') INTERSECT (SELECT id,naslov,dolzina,izdan,zanr,cena FROM pesem JOIN kupil_pesem ON kupil_pesem.pesemid = pesem.id WHERE uporabnikid = %s) '''
         elif query['prikazi'] == 'nekupljene':
@@ -261,23 +241,12 @@ def vse_pesmi():
     ORstring='''
         ((SELECT * FROM pesem
         WHERE 1=1\n'''
-    parameters = [] #vektor parametrov za sql stavke
-    try: test = query['search']
-    except: query['search'] = ''
-    try: test = query['spodnji']
-    except: query['spodnji'] = ''
-    try: test = query['zgornji']
-    except: query['zgornji'] = ''
-    try: test = query['sp_cena']
-    except: query['sp_cena'] = ''
-    try: test = query['zg_cena']
-    except: query['zg_cena'] = ''
-    try: test = query['urejanje']
-    except: query['urejanje'] = ''
-    try: test = query['nacin_u']
-    except: query['nacin_u'] = ''
-    try: test = query['prikazi']
-    except: query['prikazi'] = ''
+    parameters = []
+
+    for parameter in ['search', 'spodnji', 'zgornji', 'sp_cena', 'zg_cena', 'urejanje', 'nacin_u', 'prikazi']:
+        if parameter not in query:
+            query[parameter] = ''
+    
     if query['search'] != '':
         ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
@@ -327,16 +296,16 @@ def index_stran():
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     if username_login:
         cur.execute("SELECT spol_uporabnika FROM uporabnik WHERE id = %s", [int(id_user)])
-        (spol,) = cur.fetchone()
+        (spol,) = cur.fetchone() #za sklanjatev
         cur.execute("SELECT dogodekid FROM udelezba_dogodka WHERE uporabnikid = %s", [int(id_user)])
-        UdelezeniDogodki = cur.fetchall()
+        UdelezeniDogodki = cur.fetchall() #da bomo lahko označili že udeležene
     else:
         spol = None
         UdelezeniDogodki = None
     cur.execute("SELECT * FROM dogodek WHERE datum <= now()::date ORDER BY datum DESC, id DESC LIMIT 2")
-    Dogodki1 = cur.fetchall()
+    Dogodki1 = cur.fetchall() # dva pretekla dogodka
     cur.execute("SELECT * FROM dogodek WHERE datum > now()::date ORDER BY datum ASC, id DESC LIMIT 3")
-    Dogodki2 = cur.fetchall()
+    Dogodki2 = cur.fetchall() # trije prihajajoči dogodki
     
     return template('index.html', prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, dogodki=Dogodki1, prihajajoci=Dogodki2, udelezeni=UdelezeniDogodki, spol=spol)
 
@@ -398,17 +367,17 @@ def prijava_uporabnika():
 
 @get('/uporabniki/')
 def vsi_uporabniki():
-    """Prikaze vse registrirane uporabnike"""
+    """Prikaze vse registrirane uporabnike, ki zadoščajo filtru"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     query = dict(request.query)
     ORstring='''
         SELECT * FROM uporabnik
         WHERE 1=1\n'''
-    parameters = [] #vektor parametrov za sql stavke
-    try: test = query['search']
-    except: query['search'] = ''
-    try: test = query['nacin_u']
-    except: query['nacin_u'] = ''
+    parameters = []
+    for parameter in ['search', 'nacin_u']:
+        if parameter not in query:
+            query[parameter] = ''
+    
     if query['search'] != '':
         ORstring += '''AND (LOWER(uporabnisko_ime) LIKE LOWER(%s) )'''
         parameters = parameters + ['%'+query['search']+'%']
@@ -429,9 +398,6 @@ def registriraj_uporabnika():
     UporabniskoIme = request.forms.uporabniskoime
     Geslo1 = request.forms.geslo1
     Geslo2 = request.forms.geslo2
-    #if request.forms.stanje:
-    #    Stanje = request.forms.stanje
-    #else:
     Stanje = 100
     Email = request.forms.kontakt
     Ime = request.forms.ime
@@ -454,22 +420,16 @@ def registriraj_uporabnika():
         #    cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
         #    return template('contacts.html', x=x, napaka = 'Slika ni v pravem formatu', uporabniki=cur)
     elif UporabniskoIme and Geslo1 and Geslo2 and Ime and Priimek and Rojstvo and Spol: #zamaknjeno za tab, če vključimo slike
-        #try:
-            #print([str(UporabniskoIme), password_md5(Geslo1), int(Stanje), str(Ime), str(Priimek), str(Rojstvo), str(Spol)])
-            #PraviRacun=int(RacunPython)
-            cur.execute("INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, email) VALUES (%s, %s, %s, %s, %s, to_date(%s, 'yyyy-mm-dd'), %s, %s);", [str(UporabniskoIme), password_md5(Geslo1), int(Stanje), str(Ime), str(Priimek), str(Rojstvo), str(Spol), str(Email)])
-            #cur.execute("SELECT last_value FROM uporabnik_id_seq") #ID novega uporabnika
-            #userid=cur.fetchone()
-            #filename = str(userid[0]) + ext
-            #Slika.filename = filename
-            #save_path = os.path.join('static','images','uploads',filename)
-            #Slika.save(save_path) # appends upload.filename automatically
-            redirect('/prijava/')
-            #cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-            #return template('register.html', x=0, napaka = "Vse OK", barva="red", uporabniki=cur)
-        #except:
-        #    cur.execute("SELECT * FROM uporabnik ORDER BY id, stanje")
-        #    return template('contacts.html', x=x, napaka = "Napaka pri dodajanju uporabnika", uporabniki=cur)
+        cur.execute("INSERT INTO uporabnik(uporabnisko_ime, geslo, stanje, ime, priimek, rojstvo, spol_uporabnika, email) VALUES (%s, %s, %s, %s, %s, to_date(%s, 'yyyy-mm-dd'), %s, %s);", [str(UporabniskoIme), password_md5(Geslo1), int(Stanje), str(Ime), str(Priimek), str(Rojstvo), str(Spol), str(Email)])
+        
+        #cur.execute("SELECT last_value FROM uporabnik_id_seq") #ID novega uporabnika
+        #userid=cur.fetchone()
+        #filename = str(userid[0]) + ext
+        #Slika.filename = filename
+        #save_path = os.path.join('static','images','uploads',filename)
+        #Slika.save(save_path) # appends upload.filename automatically
+        
+        redirect('/prijava/') #če se je uspešno registriral, ga preusmerimo na stran za prijavo.
     else:
         return template('register.html', napaka = 'Prosim izpolnite manjkajoče podatke', barva="red", prijavljen_uporabnik=username_login, stanje=stanje, id_uporabnik=id_user)
 
@@ -485,7 +445,6 @@ def uporabnik_stran(id):
     KupljeniAlbumi = cur.fetchall()
     cur.execute("SELECT id,naslov FROM dogodek JOIN udelezba_dogodka ON dogodek.id = udelezba_dogodka.dogodekid WHERE uporabnikid = %s", [int(id)])
     UdelezeniDogodki = cur.fetchall()
-    # Prikažemo predlogo
     return template("član.html", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, uporabnik=Uporabnik, pesmi=KupljenePesmi, albumi=KupljeniAlbumi, dogodki=UdelezeniDogodki)
 
 @route("/song/<id>/")
@@ -510,7 +469,6 @@ def pesem_stran(id):
     Avtorji_b = []
     for (ime,) in cur:
         Avtorji_b.append(ime)
-    # Prikažemo predlogo
     cur.execute("SELECT album.id, album.naslov FROM album_pesem JOIN album ON album_pesem.albumid = album.id WHERE pesemid = %s", [int(id)])
     Albumi = cur.fetchall()
     cur.execute("SELECT dogodek.id, dogodek.naslov FROM izvedene_pesmi JOIN dogodek ON izvedene_pesmi.dogodekid = dogodek.id WHERE pesemid = %s", [int(id)])
@@ -530,7 +488,6 @@ def litdelo_stran(id):
     Avtorji_l = []
     for (ime,) in cur:
         Avtorji_l.append(ime)
-    # Prikažemo predlogo
     cur.execute("SELECT dogodek.id, dogodek.naslov FROM izvedena_lit_dela JOIN dogodek ON izvedena_lit_dela.dogodekid = dogodek.id WHERE litdeloid = %s", [int(id)])
     Dogodki = cur.fetchall()
     return template("litdelo.html", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, litdelo=Litdelo, tip=Tip, avtorji_litdela = Avtorji_l, dogodki=Dogodki)
@@ -544,7 +501,7 @@ def kupi_pesem(id):
         ze_kupljeno = cur.fetchone()
         cur.execute("SELECT cena FROM pesem WHERE id = %s", [int(id)])
         (cena,)=cur.fetchone()
-        if not ze_kupljeno and stanje >= cena:
+        if not ze_kupljeno and stanje >= cena: #če je stanje uporabnika večje od cene in te pesmi še nismo kupili, potem jo lahko.
             cur.execute("UPDATE uporabnik SET stanje = stanje - %s WHERE id = %s", [int(cena), id_user])
             cur.execute("INSERT INTO kupil_pesem (pesemid, uporabnikid) VALUES (%s, %s)", [id, id_user])
     redirect('/song/'+str(id)+'/')
@@ -584,7 +541,7 @@ def kupi_album(id):
             cur.execute("INSERT INTO kupil_album (albumid, uporabnikid) VALUES (%s, %s)", [id, id_user])
             cur.execute("SELECT pesem.id FROM album_pesem JOIN pesem ON album_pesem.pesemid = pesem.id WHERE albumid = %s", [int(id)])
             pesmi = cur.fetchall()
-            for (pesem_id,) in pesmi:
+            for (pesem_id,) in pesmi: #če smo kupili album, smo kupili tudi vse pesmi
                 cur.execute("SELECT id,naslov FROM pesem JOIN kupil_pesem ON pesem.id = kupil_pesem.pesemid WHERE uporabnikid = %s AND pesemid = %s", [int(id_user), int(pesem_id)])
                 ze_kupljeno = cur.fetchone()
                 if not ze_kupljeno:
@@ -633,17 +590,14 @@ def ponaredi_stanje(id):
 def dodaj_pesem_stran():
     """Admin lahko doda novo pesem"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
-    if username_login:
+    if username_login and admin:
         cur.execute("SELECT id, naslov FROM zanr", [int(id_user)])
         zanri = cur.fetchall()
         cur.execute("SELECT id, ime FROM clan", [int(id_user)])
         clani = cur.fetchall()
-        if admin:
-            return template('add_pesem.html', napaka="", barva="green", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, zanri = zanri, clani=clani)
-        else:
-            return template('add_pesem.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, zanri = [], clani=[])
+        return template('add_pesem.html', napaka="", barva="green", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, zanri = zanri, clani=clani)
     else:
-        return template('add_pesem.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=None, id_uporabnik=0, stanje = 0, admin=None, zanri = [], clani=[])
+        return template('add_pesem.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje=stanje, admin=admin, zanri = [], clani=[])
 
 @post('/add_pesem/')
 def dodaj_pesem():
@@ -673,13 +627,10 @@ def dodaj_pesem():
 def dodaj_zanr_stran():
     """Admin lahko doda nov zanr pesmi"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
-    if username_login:
-        if admin:
-            return template('add_zanr.html', napaka="", barva="green", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin)
-        else:
-            return template('add_zanr.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin)
+    if username_login and admin:
+        return template('add_zanr.html', napaka="", barva="green", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin)
     else:
-        return template('add_zanr.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=None, id_uporabnik=0, stanje = 0, admin=None)
+        return template('add_zanr.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin)
 
 @post('/add_zanr/')
 def dodaj_zanr():
@@ -695,15 +646,12 @@ def dodaj_zanr():
 def dodaj_album_stran():
     """Admin lahko doda nov album"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
-    if username_login:
+    if username_login and admin:
         cur.execute("SELECT id, naslov FROM pesem", [int(id_user)])
         pesmi = cur.fetchall()
-        if admin:
-            return template('add_album.html', napaka="", barva="green", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, pesmi = pesmi)
-        else:
-            return template('add_album.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, pesmi = [])
+        return template('add_album.html', napaka="", barva="green", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, pesmi = pesmi)
     else:
-        return template('add_album.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=None, id_uporabnik=0, stanje = 0, admin=None, pesmi = [])
+        return template('add_album.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, pesmi = [])
 
 @post('/add_album/')
 def dodaj_album():
@@ -727,17 +675,14 @@ def dodaj_album():
 def dodaj_litdelo_stran():
     """Admin lahko doda novo lit. delo"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
-    if username_login:
+    if username_login and admin:
         cur.execute("SELECT id, naslov FROM tip_lit_dela", [int(id_user)])
         tipi = cur.fetchall()
         cur.execute("SELECT id, ime FROM clan", [int(id_user)])
         clani = cur.fetchall()
-        if admin:
-            return template('add_litdelo.html', napaka="", barva="green", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, tipi = tipi, clani=clani)
-        else:
-            return template('add_litdelo.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, tipi = [], clani=[])
+        return template('add_litdelo.html', napaka="", barva="green", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, tipi = tipi, clani=clani)
     else:
-        return template('add_litdelo.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=None, id_uporabnik=0, stanje = 0, admin=None, tipi = [], clani=[])
+        return template('add_litdelo.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, tipi = [], clani=[])
 
 @post('/add_litdelo/')
 def dodaj_litdelo():
@@ -761,13 +706,10 @@ def dodaj_litdelo():
 def dodaj_tip_stran():
     """Admin lahko doda nov tip lit. dela"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
-    if username_login:
-        if admin:
-            return template('add_tip.html', napaka="", barva="green", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin)
-        else:
-            return template('add_tip.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin)
+    if username_login and admin:
+        return template('add_tip.html', napaka="", barva="green", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin)
     else:
-        return template('add_tip.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=None, id_uporabnik=0, stanje = 0, admin=None)
+        return template('add_tip.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin)
 
 @post('/add_tip/')
 def dodaj_tip():
@@ -783,17 +725,14 @@ def dodaj_tip():
 def dodaj_dogodek_stran():
     """Admin lahko doda nov dogodek"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
-    if username_login:
+    if username_login and admin:
         cur.execute("SELECT id, naslov FROM pesem", [int(id_user)])
         pesmi = cur.fetchall()
         cur.execute("SELECT id, naslov FROM lit_delo", [int(id_user)])
         litdela = cur.fetchall()
-        if admin:
-            return template('add_dogodek.html', napaka="", barva="green", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, pesmi = pesmi, litdela=litdela)
-        else:
-            return template('add_dogodek.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, pesmi = [], litdela=[])
+        return template('add_dogodek.html', napaka="", barva="green", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, pesmi = pesmi, litdela=litdela)
     else:
-        return template('add_dogodek.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=None, id_uporabnik=0, stanje = 0, admin=None, pesmi = [], litdela=[])
+        return template('add_dogodek.html', napaka="Niste admin.", barva="red", prijavljen_uporabnik=username_login, id_uporabnik=id_user, stanje = stanje, admin=admin, pesmi = [], litdela=[])
 
 @post('/add_dogodek/')
 def dodaj_dogodek():
