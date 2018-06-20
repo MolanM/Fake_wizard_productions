@@ -400,8 +400,8 @@ def registriraj_uporabnika():
     Geslo2 = request.forms.geslo2
     Stanje = 100
     Email = request.forms.kontakt
-    Ime = request.forms.ime
-    Priimek = request.forms.priimek
+    Ime = request.forms.get("ime")
+    Priimek = request.forms.get("priimek")
     Rojstvo = request.forms.rojstvo
     Spol = request.forms.get("spol")
     #Slika = request.files.uploaded
