@@ -354,7 +354,7 @@ def prijava_uporabnika():
         if cur.fetchone() is None:
             # Username in geslo se ne ujemata
             return template("prijava.html",
-                                   napaka="Uporabniško ime in geslo se ne ujemata", barva="red",
+                                   napaka="Uporabniško ime in geslo se ne ujemata. Pred prijavo se morate registrirati!", barva="red",
                                    username=username, prijavljen_uporabnik=username_login, stanje=stanje, id_uporabnik=id_user)
         else:
             # Vse je v redu, nastavimo cookie in preusmerimo na glavno stran
