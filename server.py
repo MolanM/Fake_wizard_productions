@@ -75,6 +75,7 @@ def clani_stran():
 def vsi_dogodki():
     """Prikaze dogodke, ki ustrezajo filtru"""
     query = dict(request.query)
+    query['search'] = request.query.search
     mnozica=''
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     #preverimo, če je uporabnik prijavljen in želi filtrirati po udelezenih dogodkih
@@ -94,9 +95,9 @@ def vsi_dogodki():
             query[parameter] = ''
     
     if query['search'] != '': #iskanje po ključnih besedah
-        ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
+        ORstring += '''AND ((naslov) ILIKE (%s))'''
         parameters = parameters + ['%'+query['search']+'%']
-        print('%'+query['search']+'%')
+        #print(query['search'])
     if query['spodnji'] != '':#filter za najmanjši datum
         ORstring += '''AND (datum >= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['spodnji']]
@@ -131,6 +132,7 @@ def vsa_litdela():
     """Prikaze lit. dela, ki ustrezajo filtru"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     query = dict(request.query)
+    query['search'] = request.query.search
     ORstring='''
         SELECT * FROM lit_delo
         WHERE 1=1\n'''
@@ -142,9 +144,9 @@ def vsa_litdela():
             query[parameter] = ''
     
     if query['search'] != '': #ključne besede
-        ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
+        ORstring += '''AND ((naslov) ILIKE (%s))'''
         parameters = parameters + ['%'+query['search']+'%']
-        print('%'+query['search']+'%')
+        #print('%'+query['search']+'%')
     if query['spodnji'] != '': #najmanjši datum
         ORstring += '''AND (izdan >= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['spodnji']]
@@ -169,6 +171,7 @@ def vsa_litdela():
 def vsi_albumi():
     """Prikaze albume, ki ustrezajo filtru"""
     query = dict(request.query)
+    query['search'] = request.query.search
     mnozica=''
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     #preverimo, če je uporabnik prijavljen in želi filtrirati po kupljenih oz. ne-kupljenih albumih
@@ -189,9 +192,9 @@ def vsi_albumi():
             query[parameter] = ''
     
     if query['search'] != '':
-        ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
+        ORstring += '''AND ((naslov) ILIKE (%s))'''
         parameters = parameters + ['%'+query['search']+'%']
-        print('%'+query['search']+'%')
+        #print('%'+query['search']+'%')
     if query['spodnji'] != '':
         ORstring += '''AND (izdan >= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['spodnji']]
@@ -229,6 +232,7 @@ def vsi_albumi():
 def vse_pesmi():
     """Prikaze pesmi, ki ustrezajo filtru"""
     query = dict(request.query)
+    query['search'] = request.query.search
     mnozica=''
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     if username_login:
@@ -248,9 +252,9 @@ def vse_pesmi():
             query[parameter] = ''
     
     if query['search'] != '':
-        ORstring += '''AND (LOWER(naslov) LIKE LOWER(%s) )'''
+        ORstring += '''AND ((naslov) ILIKE (%s))'''
         parameters = parameters + ['%'+query['search']+'%']
-        print('%'+query['search']+'%')
+        #print('%'+query['search']+'%')
     if query['spodnji'] != '':
         ORstring += '''AND (izdan >= to_date(%s, 'yyyy-mm-dd') )'''
         parameters = parameters + [query['spodnji']]
@@ -344,9 +348,9 @@ def prijava_uporabnika():
     """Obdela izpolnjeno formo za prijavo"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     # Uporabniško ime, ki ga je uporabnik vpisal v formo
-    username = request.forms.uporabniskoime
+    username = request.forms.get('uporabniskoime')
     # Izračunamo MD5 has gesla, ki ga bomo spravili
-    password = password_md5(request.forms.geslo)
+    password = password_md5(request.forms.get('geslo'))
     # Preverimo, ali se je uporabnik pravilno prijavil
     if username and password:
         cur.execute("SELECT 1 FROM uporabnik WHERE uporabnisko_ime=%s AND geslo=%s",
@@ -370,6 +374,7 @@ def vsi_uporabniki():
     """Prikaze vse registrirane uporabnike, ki zadoščajo filtru"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     query = dict(request.query)
+    query['search'] = request.query.search
     ORstring='''
         SELECT * FROM uporabnik
         WHERE 1=1\n'''
@@ -379,9 +384,9 @@ def vsi_uporabniki():
             query[parameter] = ''
     
     if query['search'] != '':
-        ORstring += '''AND (LOWER(uporabnisko_ime) LIKE LOWER(%s) )'''
+        ORstring += '''AND ((uporabnisko_ime) ILIKE (%s))'''
         parameters = parameters + ['%'+query['search']+'%']
-        print('%'+query['search']+'%')
+        #print('%'+query['search']+'%')
     ORstring += ''' ORDER BY uporabnisko_ime'''
     if query['nacin_u'] in ['ASC', 'DESC']:
         ORstring += ''' ''' + query['nacin_u']
@@ -395,14 +400,14 @@ def vsi_uporabniki():
 def registriraj_uporabnika():
     """Registrira novega uporabnika (ga doda v bazo)"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
-    UporabniskoIme = request.forms.uporabniskoime
-    Geslo1 = request.forms.geslo1
-    Geslo2 = request.forms.geslo2
+    UporabniskoIme = request.forms.get('uporabniskoime')
+    Geslo1 = request.forms.get('geslo1')
+    Geslo2 = request.forms.get('geslo2')
     Stanje = 100
-    Email = request.forms.kontakt
+    Email = request.forms.get('kontakt')
     Ime = request.forms.get("ime")
     Priimek = request.forms.get("priimek")
-    Rojstvo = request.forms.rojstvo
+    Rojstvo = request.forms.get('rojstvo')
     Spol = request.forms.get("spol")
     #Slika = request.files.uploaded
     cur.execute("SELECT 1 FROM uporabnik WHERE uporabnisko_ime=%s", [UporabniskoIme])
@@ -581,7 +586,7 @@ def ponaredi_stanje(id):
     """Uporabnik ponaredi drugemu uporabniku stanje"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     if username_login:
-        sprememba = request.forms.stanje
+        sprememba = request.forms.get('stanje')
         if sprememba and int(sprememba) > 0:
             cur.execute("UPDATE uporabnik SET stanje = stanje + %s WHERE id = %s", [sprememba, int(id)])
     redirect('/user/'+str(id)+'/')
@@ -604,11 +609,11 @@ def dodaj_pesem():
     """Admin lahko doda novo pesem"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     if username_login and admin:
-            Naslov = request.forms.naslov
-            Dolzina = request.forms.dolzina
-            Izdana = request.forms.izdan
+            Naslov = request.forms.get('naslov')
+            Dolzina = request.forms.get('dolzina')
+            Izdana = request.forms.get('izdan')
             Zanr = request.forms.get("zanr")
-            Cena = request.forms.cena
+            Cena = request.forms.get('cena')
             Minute = int(Dolzina)//60
             Sekunde = int(Dolzina)%60
             AvtorP = request.forms.getall('avtorp')
@@ -637,7 +642,7 @@ def dodaj_zanr():
     """Admin lahko doda nov zanr pesmi"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     if username_login and admin:
-            Naslov = request.forms.naslov
+            Naslov = request.forms.get('naslov')
             if Naslov:
                 cur.execute("INSERT INTO zanr(naslov) VALUES (%s);", [str(Naslov)])
     redirect('/add_zanr/')
@@ -658,10 +663,10 @@ def dodaj_album():
     """Admin lahko doda nov album"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     if username_login and admin:
-            Naslov = request.forms.naslov
-            Izdan = request.forms.izdan
+            Naslov = request.forms.get('naslov')
+            Izdan = request.forms.get('izdan')
             Opis = request.forms.get("opis")
-            Cena = request.forms.cena
+            Cena = request.forms.get('cena')
             VsebujeP = request.forms.getall('vsebujep')
             if Naslov and Izdan and Opis and Cena and VsebujeP:
                 cur.execute("INSERT INTO album(naslov, izdan, opis, cena) VALUES (%s, to_date(%s, 'yyyy-mm-dd'), %s, %s);", [str(Naslov), str(Izdan), str(Opis), int(Cena)])
@@ -690,8 +695,8 @@ def dodaj_litdelo():
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     if username_login and admin:
             Naslov = request.forms.get("naslov")
-            Izdan = request.forms.izdan
-            Zaloznik = request.forms.zaloznik
+            Izdan = request.forms.get('izdan')
+            Zaloznik = request.forms.get('zaloznik')
             Tip = request.forms.get("tip")
             AvtorL = request.forms.getall('avtorl')
             if Naslov and Izdan and Zaloznik and Tip and AvtorL:
@@ -716,7 +721,7 @@ def dodaj_tip():
     """Admin lahko doda nov tip lit. dela"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     if username_login and admin:
-            Naslov = request.forms.naslov
+            Naslov = request.forms.get('naslov')
             if Naslov:
                 cur.execute("INSERT INTO tip_lit_dela(naslov) VALUES (%s);", [str(Naslov)])
     redirect('/add_tip/')
@@ -739,8 +744,8 @@ def dodaj_dogodek():
     """Admin lahko doda nov dogodek"""
     (username_login, ime_login, id_user, stanje, admin) = get_user()
     if username_login and admin:
-            Naslov = request.forms.naslov
-            Datum = request.forms.datum
+            Naslov = request.forms.get('naslov')
+            Datum = request.forms.get('datum')
             Tip = request.forms.get("tip")
             IzvedeneP = request.forms.getall('izvedenep')
             IzvedeneL = request.forms.getall('izvedenel')
