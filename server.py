@@ -340,7 +340,7 @@ def prijava_stran():
 @get("/logout/")
 def odjava():
     """Pobriši cookie in preusmeri na login."""
-    response.delete_cookie('username', path='/', domain='localhost')
+    response.delete_cookie('username', path='/')#, domain='localhost')
     redirect('/')
 
 @post("/prijava/")
